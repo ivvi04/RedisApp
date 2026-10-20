@@ -1,0 +1,1 @@
+CREATE SCHEMA IF NOT EXISTS redis_app;
