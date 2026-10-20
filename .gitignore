@@ -1,0 +1,13 @@
+# IntelliJ IDEA
+*.iml
+.idea/
+target/
+
+# Environment variables
+.env
+
+# Maven build output
+docs/
+maven-
+surefire-reports/
+test-output/
