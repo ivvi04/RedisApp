@@ -12,6 +12,7 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 import ru.lakeevda.redisapp.exception.ChatDeletedException;
 import ru.lakeevda.redisapp.exception.MemberNotFoundException;
 
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -69,6 +70,6 @@ public class AdviceController {
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String otherException(RuntimeException e) {
-        return "Неизвестная ошибка: " + e.getMessage();
+        return "Неизвестная ошибка: " + Arrays.toString(e.getStackTrace());
     }
 }

@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
 
-@RestController
-@RequestMapping("/api/redis")
+//@RestController
+//@RequestMapping("/api/redis")
 public class RedisController {
     
     private final RedisTemplate<String, Object> redisTemplate;

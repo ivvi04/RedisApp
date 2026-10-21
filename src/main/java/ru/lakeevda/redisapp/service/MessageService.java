@@ -2,6 +2,9 @@ package ru.lakeevda.redisapp.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.lakeevda.redisapp.entity.ChatEntity;
@@ -17,6 +20,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "messagesCache")
 public class MessageService {
 
     private final MessageRepository messageRepository;
@@ -42,6 +46,7 @@ public class MessageService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(key = "#chatId")
     public List<MessageEntity> getByChatId(Long chatId) {
         return messageRepository.findByChatIdAndDeletedFalse(chatId);
     }
@@ -59,12 +64,14 @@ public class MessageService {
     }
 
     @Transactional
+    @CacheEvict(key = "#id")
     public void delete(Long id) {
         MessageEntity message = getById(id);
         message.setStatus(MessageStatus.DELETED);
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(key = "#chatId + '_' + #query", condition = "#query != null and #query != ''")
     public List<MessageEntity> searchInChat(Long chatId, String query) {
         return messageRepository.searchMessagesInChat(chatId, "%" + query.toLowerCase() + "%");
     }

@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS redis_app.chats (
 -- changeset lakeev-da:baseline-3
 CREATE TABLE IF NOT EXISTS redis_app.chat_users (
     chat_id bigint not null references redis_app.chats(id),
-    user_id bigint not null references redis_app.users(id)
+    user_id bigint not null references redis_app.users(id),
+    constraint chat_users_key unique (chat_id, user_id)
 );
 -- rollback DROP TABLE IF EXISTS redis_app.chat_users;
 

@@ -2,6 +2,10 @@ package ru.lakeevda.redisapp.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.lakeevda.redisapp.dto.ChatCreateRequest;
@@ -18,6 +22,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "chatsCache")
 public class ChatService {
 
     private final ChatRepository chatRepository;
@@ -25,12 +30,14 @@ public class ChatService {
 
 
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "chat", key = "#id", unless = "#result == null")
     public ChatEntity getById(Long id) {
         return chatRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "chats", allEntries = true)
     public ChatEntity create(ChatCreateRequest request) {
         if (request == null) {
             throw new IllegalArgumentRequestException();
@@ -63,8 +70,9 @@ public class ChatService {
     }
 
     @Transactional
-    public void manageMember(Long chatId, Long userId, String action) {
-        ChatEntity chat = getById(chatId);
+    @CacheEvict(cacheNames = "chats", key = "#id")
+    public void manageMember(Long id, Long userId, String action) {
+        ChatEntity chat = getById(id);
         UserEntity user = userService.getById(userId);
 
         switch (action) {
@@ -75,12 +83,17 @@ public class ChatService {
     }
 
     @Transactional
-    public void delete(Long chatId) {
-        ChatEntity chat = getById(chatId);
+    @Caching(evict = {
+            @CacheEvict(cacheNames = "chat", key = "#id"),
+            @CacheEvict(cacheNames = "chats", allEntries = true)
+    })
+    public void delete(Long id) {
+        ChatEntity chat = getById(id);
         chatRepository.save(chat);
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(key = "#query + '_' + #chatId", condition = "#query != null and #query != ''")
     public List<ChatEntity> searchChats(String query, Long chatId) {
         return chatRepository.searchChats(query, chatId);
     }
