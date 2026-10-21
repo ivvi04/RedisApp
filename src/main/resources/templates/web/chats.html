@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{web/fragments/layout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<head>
+    <title>Чаты — RedisApp</title>
+</head>
+<body>
+<main class="container">
+    <section class="page-head">
+        <div>
+            <p class="eyebrow">Чаты</p>
+            <h1>Создание и поиск чатов</h1>
+        </div>
+        <form class="inline-form" id="openChatForm">
+            <input type="number" min="1" name="chatId" placeholder="ID чата" required>
+            <button class="btn" type="submit">Открыть</button>
+        </form>
+    </section>
+
+    <section class="split">
+        <form class="card form" id="chatForm">
+            <h2>Новый чат</h2>
+            <label>Название
+                <input type="text" id="chatName" maxlength="255" placeholder="Название чата">
+            </label>
+            <label>Тип
+                <select id="chatType">
+                    <option value="private">private</option>
+                    <option value="group" selected>group</option>
+                </select>
+            </label>
+            <label>Создатель
+                <select id="createdBy" required>
+                    <option value="">Загрузка…</option>
+                </select>
+            </label>
+            <fieldset class="members">
+                <legend>Участники</legend>
+                <div id="membersList" class="members-list">
+                    <p class="muted small">Загрузка пользователей…</p>
+                </div>
+            </fieldset>
+            <div class="form-actions">
+                <button class="btn primary" type="submit">Создать чат</button>
+            </div>
+        </form>
+
+        <section class="card">
+            <div class="card-head">
+                <h2>Недавние чаты</h2>
+                <button class="btn ghost small" id="clearRecentBtn" type="button">Очистить</button>
+            </div>
+            <div id="recentChats" class="chat-list">
+                <p class="muted small">Пока нет открытых чатов.</p>
+            </div>
+        </section>
+    </section>
+</main>
+<script th:src="@{/web/js/chats.js}"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{web/fragments/layout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<head>
+    <title>Чат — RedisApp</title>
+</head>
+<body>
+<main class="container" th:attr="data-chat-id=${chatId}">
+    <section class="page-head">
+        <div>
+            <p class="eyebrow"><a class="link" th:href="@{/chats}">← Все чаты</a></p>
+            <h1 id="chatTitle">Чат #<span th:text="${chatId}">0</span></h1>
+            <p class="muted" id="chatSubtitle">Загрузка…</p>
+        </div>
+        <div class="hero-actions">
+            <label class="compact">Я — пользователь
+                <select id="currentUser"></select>
+            </label>
+            <button class="btn danger" id="deleteChatBtn" type="button">Удалить чат</button>
+        </div>
+    </section>
+
+    <section class="split">
+        <aside class="card">
+            <div class="card-head">
+                <h2>Участники</h2>
+                <span class="badge" id="membersCount">0</span>
+            </div>
+            <ul class="member-list" id="membersList">
+                <li class="muted small">Загрузка…</li>
+            </ul>
+            <form class="form compact-form" id="memberForm">
+                <label>Добавить участника
+                    <select id="memberToAdd"></select>
+                </label>
+                <button class="btn primary" type="submit">Добавить</button>
+            </form>
+        </aside>
+
+        <section class="card">
+            <div class="card-head">
+                <h2>Сообщения</h2>
+                <form class="inline-form" id="searchForm">
+                    <input type="search" id="searchQuery" placeholder="Поиск по чату">
+                    <button class="btn ghost" type="submit">Найти</button>
+                    <button class="btn ghost" id="clearSearchBtn" type="button" hidden>Сбросить</button>
+                </form>
+            </div>
+
+            <div class="messages" id="messages">
+                <p class="empty">Загрузка…</p>
+            </div>
+
+            <form class="message-form" id="messageForm">
+                <textarea id="messageContent" maxlength="1000" rows="2"
+                          placeholder="Введите сообщение…" required></textarea>
+                <button class="btn primary" type="submit">Отправить</button>
+            </form>
+        </section>
+    </section>
+</main>
+<script th:src="@{/web/js/chat.js}"></script>
+</body>
+</html>

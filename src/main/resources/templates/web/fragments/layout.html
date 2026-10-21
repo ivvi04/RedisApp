@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout(title, content, scripts)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:replace="${title}">RedisApp</title>
+    <link rel="stylesheet" th:href="@{/web/css/style.css}">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const path = location.pathname;
+            document.querySelectorAll('[data-nav]').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href === path || (href !== '/' && path.startsWith(href))) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+<header class="topbar">
+    <a class="brand" th:href="@{/}">
+        <span class="logo">R</span>
+        <span>RedisApp</span>
+    </a>
+    <nav>
+        <a data-nav th:href="@{/}">Обзор</a>
+        <a data-nav th:href="@{/users}">Пользователи</a>
+        <a data-nav th:href="@{/chats}">Чаты</a>
+    </nav>
+</header>
+
+<div th:replace="${content}"></div>
+
+<footer class="footer">RedisApp · Spring Boot + Redis + Thymeleaf</footer>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script th:src="@{/web/js/api.js}"></script>
+<script th:replace="${scripts}"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{web/fragments/layout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<head>
+    <title>Пользователи — RedisApp</title>
+</head>
+<body>
+<main class="container">
+    <section class="page-head">
+        <div>
+            <p class="eyebrow">Пользователи</p>
+            <h1>Управление пользователями</h1>
+        </div>
+        <button class="btn primary" id="resetFormBtn" type="button">Новый пользователь</button>
+    </section>
+
+    <section class="split">
+        <form class="card form" id="userForm">
+            <h2 id="formTitle">Новый пользователь</h2>
+            <input type="hidden" id="userId">
+            <label>Email
+                <input type="email" id="email" required maxlength="255" placeholder="user@example.com">
+            </label>
+            <label>Имя пользователя
+                <input type="text" id="username" required maxlength="255" placeholder="username">
+            </label>
+            <label id="passwordRow">Пароль
+                <input type="password" id="password" maxlength="255" placeholder="Пароль">
+            </label>
+            <div class="form-actions">
+                <button class="btn primary" type="submit" id="submitBtn">Создать</button>
+                <button class="btn ghost" type="button" id="cancelEditBtn" hidden>Отмена</button>
+            </div>
+        </form>
+
+        <section class="card">
+            <div class="card-head">
+                <h2>Список</h2>
+                <div class="toolbar">
+                    <select id="sortSelect" title="Сортировка">
+                        <option value="createdAt,desc">Сначала новые</option>
+                        <option value="createdAt,asc">Сначала старые</option>
+                        <option value="username,asc">Имя ↑</option>
+                        <option value="username,desc">Имя ↓</option>
+                        <option value="email,asc">Email ↑</option>
+                    </select>
+                    <select id="sizeSelect" title="На странице">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Имя</th>
+                        <th>Email</th>
+                        <th>Создан</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody id="usersBody">
+                    <tr><td colspan="5" class="empty">Загрузка…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <button class="btn ghost" id="prevBtn" type="button">← Назад</button>
+                <span class="muted" id="pageInfo"></span>
+                <button class="btn ghost" id="nextBtn" type="button">Вперёд →</button>
+            </div>
+        </section>
+    </section>
+</main>
+<script th:src="@{/web/js/users.js}"></script>
+</body>
+</html>

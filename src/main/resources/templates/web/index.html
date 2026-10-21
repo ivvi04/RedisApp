@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{web/fragments/layout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<head>
+    <title>Обзор — RedisApp</title>
+</head>
+<body>
+<main class="container">
+    <section class="hero">
+        <div>
+            <p class="eyebrow">Панель управления</p>
+            <h1>RedisApp</h1>
+            <p class="muted">Пользователи, чаты и сообщения — всё в одном интерфейсе.</p>
+        </div>
+        <div class="hero-actions">
+            <a class="btn primary" th:href="@{/users}">Пользователи</a>
+            <a class="btn" th:href="@{/chats}">Чаты</a>
+        </div>
+    </section>
+
+    <section class="grid cards">
+        <article class="card">
+            <p class="card-label">Пользователей</p>
+            <p class="card-value" id="usersCount">—</p>
+            <a class="link" th:href="@{/users}">Управлять →</a>
+        </article>
+        <article class="card">
+            <p class="card-label">Быстрый переход</p>
+            <form class="inline-form" id="openChatForm">
+                <input type="number" min="1" name="chatId" placeholder="ID чата" required>
+                <button class="btn primary" type="submit">Открыть</button>
+            </form>
+        </article>
+        <article class="card">
+            <p class="card-label">API</p>
+            <p class="muted small">REST-эндпоинты: <code>/api/users</code>, <code>/api/chats</code>, <code>/api/messages</code></p>
+        </article>
+    </section>
+
+    <section class="card">
+        <div class="card-head">
+            <h2>Последние пользователи</h2>
+            <a class="link" th:href="@{/users}">Все →</a>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Имя</th>
+                    <th>Email</th>
+                    <th>Создан</th>
+                </tr>
+                </thead>
+                <tbody id="recentUsers">
+                <tr><td colspan="4" class="empty">Загрузка…</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+<script th:src="@{/web/js/index.js}"></script>
+</body>
+</html>
