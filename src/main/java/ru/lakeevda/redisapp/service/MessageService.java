@@ -2,7 +2,6 @@ package ru.lakeevda.redisapp.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -23,7 +22,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@CacheConfig(cacheNames = "messagesCache")
 public class MessageService {
 
     private static final String CACHE_MESSAGES = "messages";
@@ -40,7 +38,7 @@ public class MessageService {
     })
     public MessageResponse send(Long chatId, Long senderId, String content) {
         ChatEntity chat = chatService.getEntityById(chatId);
-        if (chat != null && ChatType.fromValue(chat.getType()) == ChatType.DELETED) {
+        if (ChatType.fromValue(chat.getType()) == ChatType.DELETED) {
             throw new ChatDeletedException("Chat has been deleted");
         }
 
@@ -50,7 +48,7 @@ public class MessageService {
         message.setChatId(chatId);
         message.setSenderId(sender.getId());
         message.setContent(content);
-        message.setStatus(MessageStatus.SENT.toString());
+        message.setStatus(MessageStatus.SENT.getValue());
 
         return MessageMapper.fromEntity(messageRepository.save(message));
     }
@@ -65,7 +63,10 @@ public class MessageService {
     }
 
     @Transactional
-    @CacheEvict(cacheNames = CACHE_MESSAGES, key = "#result.chatId()")
+    @Caching(evict = {
+            @CacheEvict(cacheNames = CACHE_MESSAGES, allEntries = true),
+            @CacheEvict(cacheNames = CACHE_SEARCH, allEntries = true)
+    })
     public void markAsRead(Long id, Long userId) {
         MessageEntity message = getById(id);
         ChatEntity chat = chatService.getEntityById(message.getChatId());
@@ -74,17 +75,17 @@ public class MessageService {
             throw new MemberNotFoundException("You are not a member of this chat");
         }
 
-        message.setStatus(MessageStatus.READ.toString());
+        message.setStatus(MessageStatus.READ.getValue());
     }
 
     @Transactional
     @Caching(evict = {
-            @CacheEvict(cacheNames = CACHE_MESSAGES, key = "#result"),
+            @CacheEvict(cacheNames = CACHE_MESSAGES, allEntries = true),
             @CacheEvict(cacheNames = CACHE_SEARCH, allEntries = true)
     })
     public void delete(Long id) {
         MessageEntity message = getById(id);
-        message.setStatus(MessageStatus.DELETED.toString());
+        message.setStatus(MessageStatus.DELETED.getValue());
     }
 
     @Transactional(readOnly = true)
@@ -93,7 +94,7 @@ public class MessageService {
             condition = "#query != null and #query != ''",
             unless = "#result == null or #result.isEmpty()")
     public List<MessageResponse> searchInChat(Long chatId, String query) {
-        return messageRepository.searchMessagesInChat(chatId, "%" + query.toLowerCase() + "%")
+        return messageRepository.searchMessagesInChat(chatId, query.toLowerCase())
                 .stream().map(MessageMapper::fromEntity)
                 .toList();
     }

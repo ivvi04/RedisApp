@@ -17,8 +17,12 @@ public enum ChatType {
     }
 
     public static ChatType fromValue(String value) {
+        if (value == null) {
+            throw new IllegalArgumentException("Chat type must not be null");
+        }
+        String normalized = value.trim().toLowerCase();
         return Arrays.stream(ChatType.values())
-                .filter(x -> x.value.equals(value))
+                .filter(x -> x.value.equals(normalized))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Unknown chat type: " + value));
     }

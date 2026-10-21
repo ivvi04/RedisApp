@@ -1,4 +1,11 @@
 package ru.lakeevda.redisapp.dto.message;
 
-public record MessageSendRequest(Long chatId, Long senderId, String content) {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
+public record MessageSendRequest(
+        @NotNull Long chatId,
+        @NotNull Long senderId,
+        @NotBlank @Size(max = 1000) String content) {
 }

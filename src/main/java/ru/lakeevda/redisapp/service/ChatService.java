@@ -2,7 +2,10 @@ package ru.lakeevda.redisapp.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.*;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.lakeevda.redisapp.dto.chat.ChatCreateRequest;
@@ -20,7 +23,6 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-@CacheConfig(cacheNames = "chatsCache")
 public class ChatService {
 
     private static final String CACHE_CHATS = "chats";
@@ -50,17 +52,12 @@ public class ChatService {
         Set<UserEntity> members = new HashSet<>();
 
         for (Long memberId : request.memberIds()) {
-            UserEntity user = userService.getEntityById(memberId);
-            if (user != null) members.add(user);
+            members.add(userService.getEntityById(memberId));
         }
 
-        if (request.createdById() != null) {
-            UserEntity creator = userService.getEntityById(request.createdById());
-            if (creator != null) {
-                members.add(creator);
-                chat.setCreatedById(creator.getId());
-            }
-        }
+        UserEntity creator = userService.getEntityById(request.createdById());
+        members.add(creator);
+        chat.setCreatedById(creator.getId());
 
         chat.setMembers(members);
 
@@ -79,6 +76,7 @@ public class ChatService {
         switch (action) {
             case "ADD" -> chat.getMembers().add(user);
             case "REMOVE" -> chat.getMembers().remove(user);
+            default -> throw new IllegalArgumentRequestException();
         }
         chatRepository.save(chat);
     }
@@ -90,6 +88,7 @@ public class ChatService {
     })
     public void delete(Long id) {
         ChatEntity chat = getEntityById(id);
+        chat.setType(ChatType.DELETED.getValue());
         chatRepository.save(chat);
     }
 
@@ -98,8 +97,11 @@ public class ChatService {
             key = "#query + '_' + #chatId",
             condition = "#query != null and #query != ''",
             unless = "#result == null or #result.isEmpty()")
-    public List<ChatEntity> searchChats(String query, Long chatId) {
-        return chatRepository.searchChats(query, chatId);
+    public List<ChatResponse> searchChats(String query, Long chatId) {
+        return chatRepository.searchChats(query, chatId)
+                .stream()
+                .map(ChatMapper::fromEntity)
+                .toList();
     }
 
     public ChatEntity getEntityById(Long id) {
