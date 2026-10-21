@@ -1,4 +1,4 @@
-package ru.lakeevda.redisapp.dto;
+package ru.lakeevda.redisapp.dto.message;
 
 public record MessageSendRequest(Long chatId, Long senderId, String content) {
 }

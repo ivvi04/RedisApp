@@ -1,6 +1,6 @@
 package ru.lakeevda.redisapp.mapper;
 
-import ru.lakeevda.redisapp.dto.ChatResponse;
+import ru.lakeevda.redisapp.dto.chat.ChatResponse;
 import ru.lakeevda.redisapp.entity.ChatEntity;
 import ru.lakeevda.redisapp.entity.UserEntity;
 
@@ -9,14 +9,14 @@ import java.util.stream.Collectors;
 
 public class ChatMapper {
 
-    public static ChatResponse fromEntity(ChatEntity chat) {
+    public static ChatResponse fromEntity(ChatEntity entity) {
 
-        Set<Long> memberIds = chat.getMembers().stream().map(UserEntity::getId).collect(Collectors.toSet());
+        Set<Long> memberIds = entity.getMembers().stream().map(UserEntity::getId).collect(Collectors.toSet());
         return new ChatResponse(
-                chat.getId(),
-                chat.getName(),
-                chat.getType(),
+                entity.getId(),
+                entity.getName(),
+                entity.getType(),
                 memberIds,
-                chat.getCreatedAt());
+                entity.getCreatedAt());
     }
 }

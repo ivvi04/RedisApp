@@ -1,4 +1,4 @@
-package ru.lakeevda.redisapp.dto;
+package ru.lakeevda.redisapp.dto.chat;
 
 import java.time.Instant;
 import java.util.Set;

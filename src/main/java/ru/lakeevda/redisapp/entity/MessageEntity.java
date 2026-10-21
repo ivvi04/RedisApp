@@ -2,9 +2,8 @@ package ru.lakeevda.redisapp.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import ru.lakeevda.redisapp.enums.MessageStatus;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @Entity
@@ -25,14 +24,13 @@ public class MessageEntity {
     private String content;
     
     @Column(name = "timestamp", nullable = false)
-    private LocalDateTime timestamp;
-    
-    @Enumerated(EnumType.STRING)
+    private Instant timestamp;
+
     @Column(nullable = false)
-    private MessageStatus status;
+    private String status;
     
     @PrePersist
     protected void onCreate() {
-        timestamp = LocalDateTime.now();
+        timestamp = Instant.now();
     }
 }

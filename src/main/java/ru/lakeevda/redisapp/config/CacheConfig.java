@@ -1,7 +1,5 @@
 package ru.lakeevda.redisapp.config;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,8 +11,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 import java.io.Serializable;
 import java.time.Duration;
@@ -24,35 +21,37 @@ import java.time.Duration;
 public class CacheConfig {
 
     @Bean
-    public ObjectMapper cacheObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registeredModules();
-        return objectMapper;
-    }
+    public RedisTemplate<String, Serializable> redisCacheTemplate(
+            LettuceConnectionFactory redisConnectionFactory) {
 
-
-    @Bean
-    public RedisTemplate<String, Serializable> redisCacheTemplate(LettuceConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, Serializable> template = new RedisTemplate<>();
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new GenericJacksonJsonRedisSerializer(cacheObjectMapper()));
         template.setConnectionFactory(redisConnectionFactory);
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(jacksonJsonRedisSerializer());
         return template;
     }
 
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
-        GenericJacksonJsonRedisSerializer genericJacksonJsonRedisSerializer = new GenericJacksonJsonRedisSerializer(cacheObjectMapper());
 
-        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
+        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(10))
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(
-                        new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(genericJacksonJsonRedisSerializer))
+                .serializeKeysWith(RedisSerializationContext.SerializationPair
+                        .fromSerializer(new StringRedisSerializer()))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair
+                        .fromSerializer(jacksonJsonRedisSerializer()))
                 .disableCachingNullValues();
 
         return RedisCacheManager.builder(connectionFactory)
-                .cacheDefaults(redisCacheConfiguration)
+                .cacheDefaults(config)
+                .build();
+    }
+
+    private GenericJacksonJsonRedisSerializer jacksonJsonRedisSerializer() {
+        return GenericJacksonJsonRedisSerializer.builder()
+                .enableDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(Object.class)
+                        .build())
                 .build();
     }
 }

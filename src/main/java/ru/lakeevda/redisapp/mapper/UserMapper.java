@@ -1,8 +1,7 @@
 package ru.lakeevda.redisapp.mapper;
 
-import ru.lakeevda.redisapp.dto.UserCreateRequest;
-import ru.lakeevda.redisapp.dto.UserResponse;
-import ru.lakeevda.redisapp.dto.UserUpdateRequest;
+import ru.lakeevda.redisapp.dto.user.UserCreateRequest;
+import ru.lakeevda.redisapp.dto.user.UserResponse;
 import ru.lakeevda.redisapp.entity.UserEntity;
 
 public class UserMapper {
@@ -14,15 +13,8 @@ public class UserMapper {
         return user;
     }
 
-    public static UserEntity toEntity(UserUpdateRequest request) {
-        UserEntity user = new UserEntity();
-        user.setUsername(request.username());
-        user.setEmail(request.email());
-        return user;
-    }
-
-    public static UserResponse toResponse(UserEntity user) {
-        return new UserResponse(user.getId(), user.getEmail(), user.getUsername(), user.getCreatedAt());
+    public static UserResponse fromEntity(UserEntity entity) {
+        return new UserResponse(entity.getId(), entity.getEmail(), entity.getUsername(), entity.getCreatedAt());
     }
 
 }

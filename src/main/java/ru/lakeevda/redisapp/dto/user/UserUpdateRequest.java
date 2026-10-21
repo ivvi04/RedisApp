@@ -1,4 +1,4 @@
-package ru.lakeevda.redisapp.dto;
+package ru.lakeevda.redisapp.dto.user;
 
 public record UserUpdateRequest(String email, String username) {
 }

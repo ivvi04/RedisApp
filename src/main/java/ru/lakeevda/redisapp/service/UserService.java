@@ -6,7 +6,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.lakeevda.redisapp.dto.user.UserCreateRequest;
+import ru.lakeevda.redisapp.dto.user.UserResponse;
+import ru.lakeevda.redisapp.dto.user.UserUpdateRequest;
 import ru.lakeevda.redisapp.entity.UserEntity;
+import ru.lakeevda.redisapp.mapper.UserMapper;
 import ru.lakeevda.redisapp.repository.UserRepository;
 
 import java.time.Instant;
@@ -19,38 +23,42 @@ public class UserService {
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-    
+
     @Transactional(readOnly = true)
-    public UserEntity getById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found: " + id));
+    public UserResponse getById(Long id) {
+        return UserMapper.fromEntity(getEntityById(id));
     }
-    
+
     @Transactional(readOnly = true)
-    public Page<UserEntity> getAllUsers(Pageable pageable, String sort) {
-        String sortBy = sort != null && !sort.isEmpty() ? sort : "createdAt";
-        return userRepository.findAll(pageable);
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(UserMapper::fromEntity);
     }
     
     @Transactional
-    public UserEntity create(UserEntity user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
+    public UserResponse create(UserCreateRequest request) {
+        if (userRepository.existsByEmail(request.email())) {
             throw new EntityExistsException("Email already exists");
         }
+        UserEntity user = UserMapper.toEntity(request);
         user.setCreatedAt(Instant.now());
-        return userRepository.save(user);
+        return UserMapper.fromEntity(userRepository.save(user));
     }
     
     @Transactional
-    public UserEntity update(Long id, UserEntity user) {
-        UserEntity existing = userRepository.findById(id).orElseThrow();
-        existing.setUsername(user.getUsername());
-        existing.setEmail(user.getEmail());
-        return userRepository.save(existing);
+    public UserResponse update(Long id, UserUpdateRequest request) {
+        UserEntity existing = getEntityById(id);
+        existing.setUsername(request.username());
+        existing.setEmail(request.email());
+        return UserMapper.fromEntity(userRepository.save(existing));
     }
     
     @Transactional
     public void delete(Long id) {
         userRepository.deleteById(id);
+    }
+
+    public UserEntity getEntityById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found: " + id));
     }
 }

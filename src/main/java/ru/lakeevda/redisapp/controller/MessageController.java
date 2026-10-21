@@ -3,8 +3,8 @@ package ru.lakeevda.redisapp.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.lakeevda.redisapp.dto.MessageSendRequest;
-import ru.lakeevda.redisapp.entity.MessageEntity;
+import ru.lakeevda.redisapp.dto.message.MessageResponse;
+import ru.lakeevda.redisapp.dto.message.MessageSendRequest;
 import ru.lakeevda.redisapp.exception.IllegalArgumentRequestException;
 import ru.lakeevda.redisapp.service.MessageService;
 
@@ -18,7 +18,7 @@ public class MessageController {
     private final MessageService messageService;
 
     @PostMapping
-    public MessageEntity send(@RequestBody MessageSendRequest request) {
+    public MessageResponse send(@RequestBody MessageSendRequest request) {
         if (request == null) {
             throw new IllegalArgumentRequestException();
         }
@@ -26,7 +26,7 @@ public class MessageController {
     }
 
     @GetMapping("/chat/{chatId}")
-    public List<MessageEntity> getByChatId(@PathVariable Long chatId) {
+    public List<MessageResponse> getByChatId(@PathVariable Long chatId) {
         if (chatId == null) {
             throw new IllegalArgumentRequestException();
         }
@@ -34,7 +34,7 @@ public class MessageController {
     }
 
     @GetMapping("/chat/{chatId}/search")
-    public List<MessageEntity> searchInChat(@PathVariable Long chatId, @RequestParam String query) {
+    public List<MessageResponse> searchInChat(@PathVariable Long chatId, @RequestParam String query) {
         if (chatId == null || query == null) {
             throw new IllegalArgumentRequestException();
         }

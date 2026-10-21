@@ -2,11 +2,10 @@ package ru.lakeevda.redisapp.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.lakeevda.redisapp.dto.ChatCreateRequest;
-import ru.lakeevda.redisapp.dto.ChatResponse;
-import ru.lakeevda.redisapp.dto.ChatManageMembersRequest;
+import ru.lakeevda.redisapp.dto.chat.ChatCreateRequest;
+import ru.lakeevda.redisapp.dto.chat.ChatManageMembersRequest;
+import ru.lakeevda.redisapp.dto.chat.ChatResponse;
 import ru.lakeevda.redisapp.exception.IllegalArgumentRequestException;
-import ru.lakeevda.redisapp.mapper.ChatMapper;
 import ru.lakeevda.redisapp.service.ChatService;
 
 @RestController
@@ -21,7 +20,7 @@ public class ChatController {
         if (request == null) {
             throw new IllegalArgumentRequestException();
         }
-        return ChatMapper.fromEntity(chatService.create(request));
+        return chatService.create(request);
     }
 
     @GetMapping("/{chatId}")
@@ -29,7 +28,7 @@ public class ChatController {
         if (chatId == null) {
             throw new IllegalArgumentRequestException();
         }
-        return ChatMapper.fromEntity(chatService.getById(chatId));
+        return chatService.getById(chatId);
     }
 
     @PutMapping("/members")
