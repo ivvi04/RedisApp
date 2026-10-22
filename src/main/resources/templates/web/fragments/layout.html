@@ -20,7 +20,7 @@
 </head>
 <body>
 <header class="topbar">
-    <a class="brand" th:href="@{/}">
+    <a class="brand" th:href="${isAdmin ? '/' : '/chats'}">
         <span class="logo">R</span>
         <span class="brand-text">
             <span class="brand-name">RedisApp</span>
@@ -28,8 +28,8 @@
         </span>
     </a>
     <nav class="main-nav">
-        <a data-nav th:href="@{/}">Обзор</a>
-        <a data-nav th:href="@{/users}">Пользователи</a>
+        <a data-nav th:if="${isAdmin}" th:href="@{/}">Обзор</a>
+        <a data-nav th:if="${isAdmin}" th:href="@{/users}">Пользователи</a>
         <a data-nav th:href="@{/chats}">Чаты</a>
     </nav>
     <div class="topbar-spacer"></div>

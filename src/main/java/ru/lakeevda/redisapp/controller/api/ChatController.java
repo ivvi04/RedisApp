@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.lakeevda.redisapp.dto.chat.ChatCreateRequest;
 import ru.lakeevda.redisapp.dto.chat.ChatManageMembersRequest;
 import ru.lakeevda.redisapp.dto.chat.ChatResponse;
+import ru.lakeevda.redisapp.security.SecurityUtils;
 import ru.lakeevda.redisapp.service.ChatService;
 
 import java.util.List;
@@ -27,6 +28,9 @@ public class ChatController {
 
     @GetMapping
     public List<ChatResponse> getMyChats(Authentication authentication) {
+        if (SecurityUtils.isAdmin(authentication)) {
+            return chatService.getAllChats();
+        }
         return chatService.getUserChats(Long.valueOf(authentication.getName()));
     }
 

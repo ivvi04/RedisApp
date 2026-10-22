@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.lakeevda.redisapp.entity.UserEntity;
+import ru.lakeevda.redisapp.enums.UserRole;
 import ru.lakeevda.redisapp.repository.UserRepository;
 
 /**
@@ -31,9 +32,11 @@ public class DatabaseUserDetailsService implements UserDetailsService {
         UserEntity user = userRepository.findByEmailIgnoreCase(email.trim())
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь с email не найден: " + email));
 
+        UserRole role = user.getRole() != null ? UserRole.fromValue(user.getRole()) : UserRole.USER;
+
         return User.withUsername(String.valueOf(user.getId()))
                 .password(user.getPassword())
-                .roles("USER")
+                .roles(role.name())
                 .build();
     }
 }

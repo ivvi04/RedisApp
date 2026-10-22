@@ -3,6 +3,7 @@ package ru.lakeevda.redisapp.config;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -10,6 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import ru.lakeevda.redisapp.security.SecurityUtils;
 
 @Configuration
 public class SecurityConfig {
@@ -26,12 +28,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/register", "/api/auth/register",
                                 "/error", "/web/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/users/**").authenticated()
+                        .requestMatchers("/users", "/api/users/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
                         .usernameParameter("email")
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/", true)
+                        .successHandler((_, response, authentication) ->
+                                response.sendRedirect(SecurityUtils.isAdmin(authentication) ? "/" : "/chats"))
                         .failureUrl("/login?error")
                         .permitAll())
                 .logout(logout -> logout
@@ -42,11 +48,18 @@ public class SecurityConfig {
                         .deleteCookies("SESSION", "JSESSIONID")
                         .permitAll())
                 .exceptionHandling(handling -> handling
-                        .authenticationEntryPoint((request, response, authException) -> {
+                        .authenticationEntryPoint((request, response, _) -> {
                             if (request.getServletPath().startsWith("/api/")) {
                                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                             } else {
                                 response.sendRedirect("/login");
+                            }
+                        })
+                        .accessDeniedHandler((request, response, _) -> {
+                            if (request.getServletPath().startsWith("/api/")) {
+                                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                            } else {
+                                response.sendRedirect("/chats");
                             }
                         }));
 

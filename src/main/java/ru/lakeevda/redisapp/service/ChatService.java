@@ -49,6 +49,15 @@ public class ChatService {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = CACHE_USER_CHATS, key = "'all'")
+    public List<ChatResponse> getAllChats() {
+        return chatRepository.findByTypeNotOrderByCreatedAtDesc(ChatType.DELETED.getValue())
+                .stream()
+                .map(ChatMapper::fromEntity)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
     @Transactional
     @Caching(
             put = @CachePut(cacheNames = CACHE_CHATS, key = "#result.id()"),

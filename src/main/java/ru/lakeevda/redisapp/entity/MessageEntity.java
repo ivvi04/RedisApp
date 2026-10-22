@@ -20,7 +20,7 @@ public class MessageEntity {
     @Column(name = "chat_id", nullable = false)
     private Long chatId;
     
-    @Column(nullable = false, length = 1000)
+    @Column(nullable = false)
     private String content;
     
     @Column(name = "timestamp", nullable = false)

@@ -3,8 +3,8 @@ package ru.lakeevda.redisapp.entity;
 import jakarta.persistence.*;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import lombok.Data;
+import ru.lakeevda.redisapp.enums.UserRole;
 
 @Data
 @Entity
@@ -25,4 +25,12 @@ public class UserEntity {
     
     @Column
     private Instant createdAt;
+
+    @Column(nullable = false)
+    private String role;
+
+    @PrePersist
+    protected void onCreate() {
+        role = UserRole.USER.getValue();
+    }
 }

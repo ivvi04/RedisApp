@@ -2,12 +2,9 @@ package ru.lakeevda.redisapp.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 import ru.lakeevda.redisapp.entity.ChatEntity;
-import ru.lakeevda.redisapp.enums.ChatType;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ChatRepository extends JpaRepository<ChatEntity, Long> {
     
@@ -21,4 +18,6 @@ public interface ChatRepository extends JpaRepository<ChatEntity, Long> {
             ORDER BY c.createdAt DESC
             """)
     List<ChatEntity> findByMemberIdAndTypeNot(Long userId, String excludedType);
+
+    List<ChatEntity> findByTypeNotOrderByCreatedAtDesc(String excludedType);
 }

@@ -77,7 +77,7 @@ public class MessageService {
             throw new MemberNotFoundException("Вы не являетесь участником этого чата");
         }
 
-        message.setStatus(MessageStatus.READ.getValue());
+        message.setStatus(MessageStatus.READ.name());
     }
 
     @Transactional

@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import ru.lakeevda.redisapp.dto.user.UserResponse;
+import ru.lakeevda.redisapp.security.SecurityUtils;
 import ru.lakeevda.redisapp.service.UserService;
 
 /**
@@ -23,8 +24,11 @@ public class WebModelAttributes {
         if (authentication == null
                 || !authentication.isAuthenticated()
                 || authentication instanceof AnonymousAuthenticationToken) {
+            model.addAttribute("isAdmin", false);
             return;
         }
+
+        model.addAttribute("isAdmin", SecurityUtils.isAdmin(authentication));
 
         try {
             UserResponse user = userService.getById(Long.valueOf(authentication.getName()));

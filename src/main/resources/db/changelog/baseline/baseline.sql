@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS redis_app.users (
     email       text            not null unique,
     username    varchar(255)    not null,
     password    varchar(255)    not null,
-    created_at  timestamp
+    created_at  timestamp,
+    role        varchar(50)     not null default 'USER'
 );
 -- rollback DROP TABLE IF EXISTS redis_app.users;
 
