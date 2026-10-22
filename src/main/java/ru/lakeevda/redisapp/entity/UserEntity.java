@@ -6,6 +6,11 @@ import java.time.Instant;
 import lombok.Data;
 import ru.lakeevda.redisapp.enums.UserRole;
 
+/**
+ * Сущность пользователя.
+ *
+ * @author lakeev-da
+ */
 @Data
 @Entity
 @Table(schema = "redis_app", name = "users")
@@ -29,6 +34,9 @@ public class UserEntity {
     @Column(nullable = false)
     private String role;
 
+    /**
+     * Устанавливает роль пользователя по умолчанию перед сохранением.
+     */
     @PrePersist
     protected void onCreate() {
         role = UserRole.USER.getValue();

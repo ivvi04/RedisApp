@@ -15,6 +15,8 @@ import ru.lakeevda.redisapp.repository.UserRepository;
 /**
  * Аутентификация по email. В качестве имени принципала используется id пользователя,
  * чтобы смена email не ломала уже открытую сессию.
+ *
+ * @author lakeev-da
  */
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,13 @@ public class DatabaseUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
+    /**
+     * Загружает пользователя по email и формирует его учётные данные.
+     *
+     * @param email email пользователя
+     * @return данные пользователя для Spring Security
+     * @throws UsernameNotFoundException если пользователь не найден
+     */
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(@NonNull String email) throws UsernameNotFoundException {

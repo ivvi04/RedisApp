@@ -12,9 +12,19 @@ import ru.lakeevda.redisapp.repository.UserRepository;
 
 import java.time.Instant;
 
+/**
+ * Точка входа приложения RedisApp.
+ *
+ * @author lakeev-da
+ */
 @SpringBootApplication
 public class RedisAppApplication {
 
+    /**
+     * Запускает Spring Boot приложение.
+     *
+     * @param args аргументы командной строки
+     */
     public static void main(String[] args) {
         SpringApplication.run(RedisAppApplication.class, args);
     }

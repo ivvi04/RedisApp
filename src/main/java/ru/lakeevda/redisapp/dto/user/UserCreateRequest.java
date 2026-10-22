@@ -4,6 +4,14 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+/**
+ * Запрос на создание пользователя.
+ *
+ * @param email    email пользователя
+ * @param username имя пользователя
+ * @param password пароль
+ * @author lakeev-da
+ */
 public record UserCreateRequest(
         @NotBlank(message = "Укажите email")
         @Email(message = "Некорректный email")

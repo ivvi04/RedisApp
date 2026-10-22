@@ -2,6 +2,11 @@ package ru.lakeevda.redisapp.enums;
 
 import lombok.Getter;
 
+/**
+ * Статус сообщения.
+ *
+ * @author lakeev-da
+ */
 @Getter
 public enum MessageStatus {
     SENT("sent"),
@@ -11,6 +16,11 @@ public enum MessageStatus {
 
     private final String value;
 
+    /**
+     * Создаёт статус сообщения с указанным строковым значением.
+     *
+     * @param value строковое значение статуса
+     */
     MessageStatus(String value) {
         this.value = value;
     }

@@ -7,6 +7,11 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Сущность чата.
+ *
+ * @author lakeev-da
+ */
 @Data
 @Entity
 @Table(schema = "redis_app", name = "chats")
@@ -35,6 +40,9 @@ public class ChatEntity {
     @OrderBy("username ASC")
     private Set<UserEntity> members = new HashSet<>();
 
+    /**
+     * Устанавливает дату создания чата перед сохранением.
+     */
     @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();

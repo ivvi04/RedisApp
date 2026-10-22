@@ -16,10 +16,21 @@ import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import java.io.Serializable;
 import java.time.Duration;
 
+/**
+ * Конфигурация кеширования и сериализации данных в Redis.
+ *
+ * @author lakeev-da
+ */
 @Configuration
 @EnableCaching
 public class CacheConfig {
 
+    /**
+     * Создаёт шаблон Redis с JSON-сериализацией значений.
+     *
+     * @param redisConnectionFactory фабрика подключений к Redis
+     * @return шаблон Redis
+     */
     @Bean
     public RedisTemplate<String, Serializable> redisCacheTemplate(
             LettuceConnectionFactory redisConnectionFactory) {
@@ -31,6 +42,12 @@ public class CacheConfig {
         return template;
     }
 
+    /**
+     * Создаёт менеджер кешей Redis с TTL по умолчанию.
+     *
+     * @param connectionFactory фабрика подключений к Redis
+     * @return менеджер кешей
+     */
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
 
@@ -47,6 +64,11 @@ public class CacheConfig {
                 .build();
     }
 
+    /**
+     * Создаёт JSON-сериализатор с поддержкой полиморфных типов.
+     *
+     * @return JSON-сериализатор Redis
+     */
     private GenericJacksonJsonRedisSerializer jacksonJsonRedisSerializer() {
         return GenericJacksonJsonRedisSerializer.builder()
                 .enableDefaultTyping(BasicPolymorphicTypeValidator.builder()

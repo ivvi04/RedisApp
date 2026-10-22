@@ -6,11 +6,30 @@ import ru.lakeevda.redisapp.entity.ChatEntity;
 
 import java.util.List;
 
+/**
+ * Репозиторий для работы с чатами.
+ *
+ * @author lakeev-da
+ */
 public interface ChatRepository extends JpaRepository<ChatEntity, Long> {
-    
+
+    /**
+     * Ищет чаты по названию или идентификатору.
+     *
+     * @param query  строка поиска
+     * @param chatId идентификатор чата
+     * @return найденные чаты
+     */
     @Query("SELECT c FROM ChatEntity c WHERE c.name LIKE %:query% OR c.id = :chatId")
     List<ChatEntity> searchChats(String query, Long chatId);
 
+    /**
+     * Возвращает чаты участника, исключая указанный тип.
+     *
+     * @param userId       идентификатор пользователя
+     * @param excludedType исключаемый тип чата
+     * @return список чатов
+     */
     @Query("""
             SELECT DISTINCT c FROM ChatEntity c
             JOIN c.members m
@@ -19,5 +38,11 @@ public interface ChatRepository extends JpaRepository<ChatEntity, Long> {
             """)
     List<ChatEntity> findByMemberIdAndTypeNot(Long userId, String excludedType);
 
+    /**
+     * Возвращает все чаты, кроме указанного типа, от новых к старым.
+     *
+     * @param excludedType исключаемый тип чата
+     * @return список чатов
+     */
     List<ChatEntity> findByTypeNotOrderByCreatedAtDesc(String excludedType);
 }

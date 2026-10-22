@@ -13,9 +13,21 @@ import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import ru.lakeevda.redisapp.security.SecurityUtils;
 
+/**
+ * Конфигурация Spring Security: аутентификация, авторизация и CSRF.
+ *
+ * @author lakeev-da
+ */
 @Configuration
 public class SecurityConfig {
 
+    /**
+     * Настраивает цепочку фильтров безопасности.
+     *
+     * @param http конфигуратор HTTP-безопасности
+     * @return цепочка фильтров безопасности
+     * @throws Exception при ошибке конфигурации
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         CsrfTokenRequestAttributeHandler csrfTokenHandler = new CsrfTokenRequestAttributeHandler();
@@ -66,6 +78,11 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Создаёт кодировщик паролей BCrypt.
+     *
+     * @return кодировщик паролей
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

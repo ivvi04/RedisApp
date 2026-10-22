@@ -4,6 +4,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+/**
+ * Запрос на отправку сообщения.
+ *
+ * @param chatId   идентификатор чата
+ * @param senderId идентификатор отправителя
+ * @param content  текст сообщения
+ * @author lakeev-da
+ */
 public record MessageSendRequest(
         @NotNull(message = "Укажите идентификатор чата")
         Long chatId,

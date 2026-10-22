@@ -16,16 +16,33 @@ import ru.lakeevda.redisapp.exception.MemberNotFoundException;
 
 import java.util.stream.Collectors;
 
+/**
+ * Глобальный обработчик исключений REST API.
+ *
+ * @author lakeev-da
+ */
 @Slf4j
 @RestControllerAdvice
 public class AdviceController {
 
+    /**
+     * Обрабатывает некорректные аргументы запроса.
+     *
+     * @param e исключение
+     * @return текст ошибки
+     */
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String illegalArgument(IllegalArgumentException e) {
         return e.getMessage();
     }
 
+    /**
+     * Обрабатывает ошибки валидации параметров метода.
+     *
+     * @param e исключение
+     * @return текст ошибки
+     */
     @ExceptionHandler(HandlerMethodValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String methodValidation(HandlerMethodValidationException e) {
@@ -33,6 +50,12 @@ public class AdviceController {
         return "Некорректные параметры запроса";
     }
 
+    /**
+     * Обрабатывает ошибки валидации тела запроса.
+     *
+     * @param e исключение
+     * @return список ошибок по полям
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String methodArgumentNotValid(MethodArgumentNotValidException e) {
@@ -41,6 +64,12 @@ public class AdviceController {
                 .collect(Collectors.joining(", "));
     }
 
+    /**
+     * Обрабатывает нарушения ограничений валидации.
+     *
+     * @param e исключение
+     * @return текст ошибки
+     */
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String constraintViolation(ConstraintViolationException e) {
@@ -48,6 +77,12 @@ public class AdviceController {
         return "Некорректные параметры запроса";
     }
 
+    /**
+     * Обрабатывает ошибки чтения тела HTTP-запроса.
+     *
+     * @param e исключение
+     * @return текст ошибки
+     */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String messageNotReadable(HttpMessageNotReadableException e) {
@@ -55,30 +90,60 @@ public class AdviceController {
         return "Некорректное тело запроса";
     }
 
+    /**
+     * Обрабатывает попытку создать уже существующую сущность.
+     *
+     * @param e исключение
+     * @return текст ошибки
+     */
     @ExceptionHandler(EntityExistsException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String entityExists(EntityExistsException e) {
         return e.getMessage();
     }
 
+    /**
+     * Обрабатывает обращение к удалённому чату.
+     *
+     * @param e исключение
+     * @return текст ошибки
+     */
     @ExceptionHandler(ChatDeletedException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String chatDeleted(ChatDeletedException e) {
         return e.getMessage();
     }
 
+    /**
+     * Обрабатывает отсутствие сущности.
+     *
+     * @param e исключение
+     * @return текст ошибки
+     */
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String entityNotFound(EntityNotFoundException e) {
         return e.getMessage();
     }
 
+    /**
+     * Обрабатывает отсутствие участника чата.
+     *
+     * @param e исключение
+     * @return текст ошибки
+     */
     @ExceptionHandler(MemberNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String memberNotFound(MemberNotFoundException e) {
         return e.getMessage();
     }
 
+    /**
+     * Обрабатывает все необработанные исключения.
+     *
+     * @param e исключение
+     * @return текст ошибки
+     */
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String otherException(RuntimeException e) {

@@ -16,6 +16,11 @@ import ru.lakeevda.redisapp.dto.user.UserCreateRequest;
 import ru.lakeevda.redisapp.dto.user.UserResponse;
 import ru.lakeevda.redisapp.service.UserService;
 
+/**
+ * REST-контроллер аутентификации и регистрации.
+ *
+ * @author lakeev-da
+ */
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -23,6 +28,12 @@ public class AuthController {
 
     private final UserService userService;
 
+    /**
+     * Возвращает данные текущего аутентифицированного пользователя.
+     *
+     * @param authentication данные аутентификации
+     * @return данные пользователя или статус 401
+     */
     @GetMapping("/login")
     public ResponseEntity<UserResponse> login(Authentication authentication) {
         if (authentication == null
@@ -38,6 +49,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * Регистрирует нового пользователя.
+     *
+     * @param request данные регистрации
+     * @return созданный пользователь
+     */
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterRequest request) {
         if (!request.password().equals(request.confirmPassword())) {

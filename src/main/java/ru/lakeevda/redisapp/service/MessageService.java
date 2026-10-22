@@ -22,6 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Сервис работы с сообщениями.
+ *
+ * @author lakeev-da
+ */
 @Service
 @RequiredArgsConstructor
 public class MessageService {
@@ -33,6 +38,15 @@ public class MessageService {
     private final ChatService chatService;
     private final UserService userService;
 
+    /**
+     * Отправляет сообщение в чат.
+     *
+     * @param chatId   идентификатор чата
+     * @param senderId идентификатор отправителя
+     * @param content  текст сообщения
+     * @return сохранённое сообщение
+     * @throws ChatDeletedException если чат удалён
+     */
     @Transactional
     @Caching(evict = {
             @CacheEvict(cacheNames = CACHE_MESSAGES, key = "#chatId"),
@@ -55,6 +69,12 @@ public class MessageService {
         return MessageMapper.fromEntity(messageRepository.save(message));
     }
 
+    /**
+     * Возвращает сообщения чата.
+     *
+     * @param chatId идентификатор чата
+     * @return список сообщений
+     */
     @Transactional(readOnly = true)
     @Cacheable(cacheNames = CACHE_MESSAGES, key = "#chatId", condition = "#chatId != null")
     public List<MessageResponse> getByChatId(Long chatId) {
@@ -64,6 +84,13 @@ public class MessageService {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    /**
+     * Отмечает сообщение как прочитанное.
+     *
+     * @param id     идентификатор сообщения
+     * @param userId идентификатор пользователя
+     * @throws MemberNotFoundException если пользователь не является участником чата
+     */
     @Transactional
     @Caching(evict = {
             @CacheEvict(cacheNames = CACHE_MESSAGES, allEntries = true),
@@ -80,6 +107,11 @@ public class MessageService {
         message.setStatus(MessageStatus.READ.name());
     }
 
+    /**
+     * Помечает сообщение как удалённое.
+     *
+     * @param id идентификатор сообщения
+     */
     @Transactional
     @Caching(evict = {
             @CacheEvict(cacheNames = CACHE_MESSAGES, allEntries = true),
@@ -90,6 +122,13 @@ public class MessageService {
         message.setStatus(MessageStatus.DELETED.getValue());
     }
 
+    /**
+     * Ищет сообщения внутри чата.
+     *
+     * @param chatId идентификатор чата
+     * @param query  строка поиска
+     * @return найденные сообщения
+     */
     @Transactional(readOnly = true)
     @Cacheable(cacheNames = CACHE_SEARCH,
             key = "#chatId + '_' + #query",
@@ -101,6 +140,13 @@ public class MessageService {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    /**
+     * Возвращает сущность сообщения по идентификатору.
+     *
+     * @param messageId идентификатор сообщения
+     * @return сущность сообщения
+     * @throws EntityNotFoundException если сообщение не найдено
+     */
     private MessageEntity getById(Long messageId) {
         return messageRepository.findById(messageId)
                 .orElseThrow(() -> new EntityNotFoundException("Сообщение не найдено"));

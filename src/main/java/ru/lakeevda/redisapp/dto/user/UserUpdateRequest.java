@@ -4,6 +4,13 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+/**
+ * Запрос на обновление пользователя.
+ *
+ * @param email    email пользователя
+ * @param username имя пользователя
+ * @author lakeev-da
+ */
 public record UserUpdateRequest(
         @NotBlank(message = "Укажите email")
         @Email(message = "Некорректный email")

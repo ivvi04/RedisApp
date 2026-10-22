@@ -5,6 +5,11 @@ import lombok.Data;
 
 import java.time.Instant;
 
+/**
+ * Сущность сообщения.
+ *
+ * @author lakeev-da
+ */
 @Data
 @Entity
 @Table(schema = "redis_app", name = "messages")
@@ -29,6 +34,9 @@ public class MessageEntity {
     @Column(nullable = false)
     private String status;
     
+    /**
+     * Устанавливает время отправки сообщения перед сохранением.
+     */
     @PrePersist
     protected void onCreate() {
         timestamp = Instant.now();

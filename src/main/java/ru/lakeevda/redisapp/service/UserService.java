@@ -18,6 +18,11 @@ import ru.lakeevda.redisapp.repository.UserRepository;
 import java.time.Instant;
 import java.util.Locale;
 
+/**
+ * Сервис управления пользователями.
+ *
+ * @author lakeev-da
+ */
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -25,16 +30,35 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Возвращает пользователя по идентификатору.
+     *
+     * @param id идентификатор пользователя
+     * @return данные пользователя
+     */
     @Transactional(readOnly = true)
     public UserResponse getById(Long id) {
         return UserMapper.fromEntity(getEntityById(id));
     }
 
+    /**
+     * Возвращает страницу пользователей.
+     *
+     * @param pageable параметры постраничной выборки
+     * @return страница пользователей
+     */
     @Transactional(readOnly = true)
     public Page<UserResponse> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable).map(UserMapper::fromEntity);
     }
 
+    /**
+     * Создаёт пользователя.
+     *
+     * @param request данные нового пользователя
+     * @return созданный пользователь
+     * @throws EntityExistsException если пользователь с таким email уже существует
+     */
     @Transactional
     public UserResponse create(UserCreateRequest request) {
         String email = normalizeEmail(request.email());
@@ -52,6 +76,14 @@ public class UserService {
         return UserMapper.fromEntity(userRepository.save(user));
     }
 
+    /**
+     * Обновляет данные пользователя.
+     *
+     * @param id      идентификатор пользователя
+     * @param request новые данные пользователя
+     * @return обновлённый пользователь
+     * @throws EntityExistsException если email уже занят другим пользователем
+     */
     @Transactional
     public UserResponse update(Long id, UserUpdateRequest request) {
         UserEntity existing = getEntityById(id);
@@ -67,16 +99,34 @@ public class UserService {
         return UserMapper.fromEntity(userRepository.save(existing));
     }
 
+    /**
+     * Удаляет пользователя по идентификатору.
+     *
+     * @param id идентификатор пользователя
+     */
     @Transactional
     public void delete(Long id) {
         userRepository.deleteById(id);
     }
 
+    /**
+     * Возвращает сущность пользователя по идентификатору.
+     *
+     * @param id идентификатор пользователя
+     * @return сущность пользователя
+     * @throws EntityNotFoundException если пользователь не найден
+     */
     public UserEntity getEntityById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден: " + id));
     }
 
+    /**
+     * Приводит email к нижнему регистру и удаляет пробелы по краям.
+     *
+     * @param email исходный email
+     * @return нормализованный email
+     */
     private String normalizeEmail(String email) {
         return email.trim().toLowerCase(Locale.ROOT);
     }

@@ -12,6 +12,8 @@ import ru.lakeevda.redisapp.service.UserService;
 
 /**
  * Общие web-атрибуты для страниц.
+ *
+ * @author lakeev-da
  */
 @ControllerAdvice(assignableTypes = WebController.class)
 @RequiredArgsConstructor
@@ -19,6 +21,12 @@ public class WebModelAttributes {
 
     private final UserService userService;
 
+    /**
+     * Добавляет в модель данные текущего пользователя и признак администратора.
+     *
+     * @param model          модель представления
+     * @param authentication данные аутентификации
+     */
     @ModelAttribute
     public void addCurrentUser(Model model, Authentication authentication) {
         if (authentication == null

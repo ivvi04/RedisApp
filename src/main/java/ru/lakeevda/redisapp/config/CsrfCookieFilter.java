@@ -13,9 +13,20 @@ import java.io.IOException;
 /**
  * Заставляет Spring Security записать CSRF-cookie при первом рендере страницы,
  * чтобы JavaScript мог отправлять заголовок X-XSRF-TOKEN.
+ *
+ * @author lakeev-da
  */
 public class CsrfCookieFilter extends OncePerRequestFilter {
 
+    /**
+     * Инициализирует CSRF-токен и передаёт запрос дальше по цепочке фильтров.
+     *
+     * @param request     HTTP-запрос
+     * @param response    HTTP-ответ
+     * @param filterChain цепочка фильтров
+     * @throws ServletException при ошибке обработки сервлета
+     * @throws IOException      при ошибке ввода-вывода
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     @NonNull HttpServletResponse response,

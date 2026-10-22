@@ -23,6 +23,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Сервис работы с чатами.
+ *
+ * @author lakeev-da
+ */
 @Service
 @RequiredArgsConstructor
 public class ChatService {
@@ -34,12 +39,24 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final UserService userService;
 
+    /**
+     * Возвращает чат по идентификатору.
+     *
+     * @param id идентификатор чата
+     * @return данные чата
+     */
     @Transactional(readOnly = true)
     @Cacheable(cacheNames = CACHE_CHATS, key = "#id", unless = "#result == null")
     public ChatResponse getById(Long id) {
         return ChatMapper.fromEntity(getEntityById(id));
     }
 
+    /**
+     * Возвращает чаты пользователя, в которых он является участником.
+     *
+     * @param userId идентификатор пользователя
+     * @return список чатов
+     */
     @Transactional(readOnly = true)
     @Cacheable(cacheNames = CACHE_USER_CHATS, key = "#userId")
     public List<ChatResponse> getUserChats(Long userId) {
@@ -49,6 +66,11 @@ public class ChatService {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    /**
+     * Возвращает все неудалённые чаты.
+     *
+     * @return список всех чатов
+     */
     @Transactional(readOnly = true)
     @Cacheable(cacheNames = CACHE_USER_CHATS, key = "'all'")
     public List<ChatResponse> getAllChats() {
@@ -58,6 +80,13 @@ public class ChatService {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    /**
+     * Создаёт новый чат и автоматически добавляет создателя в участники.
+     *
+     * @param request данные нового чата
+     * @return созданный чат
+     * @throws IllegalArgumentRequestException если запрос пустой
+     */
     @Transactional
     @Caching(
             put = @CachePut(cacheNames = CACHE_CHATS, key = "#result.id()"),
@@ -88,6 +117,14 @@ public class ChatService {
         return ChatMapper.fromEntity(chatRepository.save(chat));
     }
 
+    /**
+     * Добавляет или удаляет участника чата и обновляет тип чата при необходимости.
+     *
+     * @param id     идентификатор чата
+     * @param userId идентификатор пользователя
+     * @param action действие: {@code ADD} или {@code REMOVE}
+     * @throws IllegalArgumentRequestException если действие неизвестно
+     */
     @Transactional
     @Caching(evict = {
             @CacheEvict(cacheNames = CACHE_CHATS, key = "#id"),
@@ -113,6 +150,11 @@ public class ChatService {
         chatRepository.save(chat);
     }
 
+    /**
+     * Помечает чат как удалённый.
+     *
+     * @param id идентификатор чата
+     */
     @Transactional
     @Caching(evict = {
             @CacheEvict(cacheNames = CACHE_CHATS, key = "#id"),
@@ -125,6 +167,13 @@ public class ChatService {
         chatRepository.save(chat);
     }
 
+    /**
+     * Ищет чаты по названию или идентификатору.
+     *
+     * @param query  строка поиска
+     * @param chatId идентификатор чата
+     * @return найденные чаты
+     */
     @Transactional(readOnly = true)
     @Cacheable(cacheNames = CACHE_SEARCH,
             key = "#query + '_' + #chatId",
@@ -137,11 +186,24 @@ public class ChatService {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    /**
+     * Возвращает сущность чата по идентификатору.
+     *
+     * @param id идентификатор чата
+     * @return сущность чата
+     * @throws EntityNotFoundException если чат не найден
+     */
     public ChatEntity getEntityById(Long id) {
         return chatRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Чат не найден"));
     }
 
+    /**
+     * Определяет тип чата по количеству участников.
+     *
+     * @param members участники чата
+     * @return {@code GROUP}, если участников больше двух, иначе {@code PRIVATE}
+     */
     private ChatType resolveType(Set<UserEntity> members) {
         return members.size() > 2 ? ChatType.GROUP : ChatType.PRIVATE;
     }
