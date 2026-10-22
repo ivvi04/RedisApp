@@ -1,5 +1,21 @@
 # Getting Started
 
+### Настройка окружения
+
+Скопируйте пример конфигурации и задайте локальные значения:
+
+```bash
+cp .env.example .env
+```
+
+Для Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Файл `.env` не коммитится в репозиторий, `.env.example` содержит только шаблон переменных.
+
 ### Reference Documentation
 
 For further reference, please consider the following sections:
