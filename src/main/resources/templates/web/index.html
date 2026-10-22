@@ -7,39 +7,52 @@
 <body>
 <main class="container">
     <section class="hero">
-        <div>
+        <div class="hero-copy">
             <p class="eyebrow">Панель управления</p>
-            <h1>RedisApp</h1>
-            <p class="muted">Пользователи, чаты и сообщения — всё в одном интерфейсе.</p>
+            <h1>С возвращением,
+                <span th:text="${currentUser != null ? currentUser.username : 'гость'}">гость</span>
+            </h1>
+            <p class="muted">Пользователи, чаты и сообщения — в одном рабочем пространстве.</p>
         </div>
         <div class="hero-actions">
-            <a class="btn primary" th:href="@{/users}">Пользователи</a>
-            <a class="btn" th:href="@{/chats}">Чаты</a>
+            <a class="btn primary" th:href="@{/chats}">Открыть чаты</a>
+            <a class="btn" th:href="@{/users}">Пользователи</a>
         </div>
     </section>
 
-    <section class="grid cards">
-        <article class="card">
-            <p class="card-label">Пользователей</p>
-            <p class="card-value" id="usersCount">—</p>
-            <a class="link" th:href="@{/users}">Управлять →</a>
+    <section class="grid stats">
+        <article class="card stat-card">
+            <div class="stat-icon">U</div>
+            <div>
+                <p class="card-label">Пользователей</p>
+                <p class="card-value" id="usersCount">—</p>
+            </div>
         </article>
-        <article class="card">
-            <p class="card-label">Быстрый переход</p>
-            <form class="inline-form" id="openChatForm">
-                <input type="number" min="1" name="chatId" placeholder="ID чата" required>
-                <button class="btn primary" type="submit">Открыть</button>
-            </form>
+        <article class="card stat-card">
+            <div class="stat-icon">C</div>
+            <div>
+                <p class="card-label">Быстрый переход</p>
+                <form class="inline-form" id="openChatForm">
+                    <input type="number" min="1" name="chatId" placeholder="ID чата" required>
+                    <button class="btn primary" type="submit">Открыть</button>
+                </form>
+            </div>
         </article>
-        <article class="card">
-            <p class="card-label">API</p>
-            <p class="muted small">REST-эндпоинты: <code>/api/users</code>, <code>/api/chats</code>, <code>/api/messages</code></p>
+        <article class="card stat-card">
+            <div class="stat-icon">S</div>
+            <div>
+                <p class="card-label">Сессии</p>
+                <p class="muted small">Аутентификация и CSRF-токены работают вместе с Redis.</p>
+            </div>
         </article>
     </section>
 
     <section class="card">
         <div class="card-head">
-            <h2>Последние пользователи</h2>
+            <div>
+                <h2>Последние пользователи</h2>
+                <p class="muted small">Недавно зарегистрированные аккаунты</p>
+            </div>
             <a class="link" th:href="@{/users}">Все →</a>
         </div>
         <div class="table-wrap">

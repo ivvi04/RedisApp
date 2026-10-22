@@ -1,10 +1,13 @@
-package ru.lakeevda.redisapp.controller;
+package ru.lakeevda.redisapp.controller.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+/**
+ * Web-контроллер: только выбор view и подготовка атрибутов страницы.
+ */
 @Controller
 public class WebController {
 

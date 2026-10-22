@@ -91,6 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!password.value) {
                     throw new Error('Укажите пароль');
                 }
+                if (password.value.length < 6) {
+                    throw new Error('Пароль должен содержать минимум 6 символов');
+                }
                 await api('/api/users', {
                     method: 'POST',
                     body: {

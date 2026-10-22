@@ -18,7 +18,9 @@ import ru.lakeevda.redisapp.exception.MemberNotFoundException;
 import ru.lakeevda.redisapp.mapper.MessageMapper;
 import ru.lakeevda.redisapp.repository.MessageRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +41,7 @@ public class MessageService {
     public MessageResponse send(Long chatId, Long senderId, String content) {
         ChatEntity chat = chatService.getEntityById(chatId);
         if (ChatType.fromValue(chat.getType()) == ChatType.DELETED) {
-            throw new ChatDeletedException("Chat has been deleted");
+            throw new ChatDeletedException("Чат был удалён");
         }
 
         UserEntity sender = userService.getEntityById(senderId);
@@ -59,7 +61,7 @@ public class MessageService {
         return messageRepository.findByChatIdAndDeletedFalse(chatId)
                 .stream()
                 .map(MessageMapper::fromEntity)
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Transactional
@@ -72,7 +74,7 @@ public class MessageService {
         ChatEntity chat = chatService.getEntityById(message.getChatId());
         UserEntity user = userService.getEntityById(userId);
         if (!chat.getMembers().contains(user)) {
-            throw new MemberNotFoundException("You are not a member of this chat");
+            throw new MemberNotFoundException("Вы не являетесь участником этого чата");
         }
 
         message.setStatus(MessageStatus.READ.getValue());
@@ -96,11 +98,11 @@ public class MessageService {
     public List<MessageResponse> searchInChat(Long chatId, String query) {
         return messageRepository.searchMessagesInChat(chatId, query.toLowerCase())
                 .stream().map(MessageMapper::fromEntity)
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private MessageEntity getById(Long messageId) {
         return messageRepository.findById(messageId)
-                .orElseThrow(() -> new EntityNotFoundException("Message not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Сообщение не найдено"));
     }
 }

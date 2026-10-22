@@ -17,9 +17,11 @@ import ru.lakeevda.redisapp.exception.IllegalArgumentRequestException;
 import ru.lakeevda.redisapp.mapper.ChatMapper;
 import ru.lakeevda.redisapp.repository.ChatRepository;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +29,7 @@ public class ChatService {
 
     private static final String CACHE_CHATS = "chats";
     private static final String CACHE_SEARCH = "chatSearch";
+    private static final String CACHE_USER_CHATS = "userChats";
 
     private final ChatRepository chatRepository;
     private final UserService userService;
@@ -37,8 +40,20 @@ public class ChatService {
         return ChatMapper.fromEntity(getEntityById(id));
     }
 
+    @Transactional(readOnly = true)
+    @Cacheable(cacheNames = CACHE_USER_CHATS, key = "#userId")
+    public List<ChatResponse> getUserChats(Long userId) {
+        return chatRepository.findByMemberIdAndTypeNot(userId, ChatType.DELETED.getValue())
+                .stream()
+                .map(ChatMapper::fromEntity)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
     @Transactional
-    @CachePut(cacheNames = CACHE_CHATS, key = "#result.id()")
+    @Caching(
+            put = @CachePut(cacheNames = CACHE_CHATS, key = "#result.id()"),
+            evict = @CacheEvict(cacheNames = CACHE_USER_CHATS, allEntries = true)
+    )
     public ChatResponse create(ChatCreateRequest request) {
         if (request == null) {
             throw new IllegalArgumentRequestException();
@@ -67,7 +82,8 @@ public class ChatService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(cacheNames = CACHE_CHATS, key = "#id"),
-            @CacheEvict(cacheNames = CACHE_SEARCH, allEntries = true)
+            @CacheEvict(cacheNames = CACHE_SEARCH, allEntries = true),
+            @CacheEvict(cacheNames = CACHE_USER_CHATS, allEntries = true)
     })
     public void manageMember(Long id, Long userId, String action) {
         ChatEntity chat = getEntityById(id);
@@ -84,7 +100,8 @@ public class ChatService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(cacheNames = CACHE_CHATS, key = "#id"),
-            @CacheEvict(cacheNames = CACHE_SEARCH, allEntries = true)
+            @CacheEvict(cacheNames = CACHE_SEARCH, allEntries = true),
+            @CacheEvict(cacheNames = CACHE_USER_CHATS, allEntries = true)
     })
     public void delete(Long id) {
         ChatEntity chat = getEntityById(id);
@@ -101,11 +118,11 @@ public class ChatService {
         return chatRepository.searchChats(query, chatId)
                 .stream()
                 .map(ChatMapper::fromEntity)
-                .toList();
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public ChatEntity getEntityById(Long id) {
         return chatRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Chat not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Чат не найден"));
     }
 }

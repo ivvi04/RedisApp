@@ -1,10 +1,11 @@
-package ru.lakeevda.redisapp.controller;
+package ru.lakeevda.redisapp.controller.api;
 
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestControllerAdvice
 public class AdviceController {
+
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String illegalArgument(IllegalArgumentException e) {
@@ -27,7 +29,8 @@ public class AdviceController {
     @ExceptionHandler(HandlerMethodValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String methodValidation(HandlerMethodValidationException e) {
-        return e.getMessage();
+        log.debug("Ошибка валидации метода: {}", e.getMessage());
+        return "Некорректные параметры запроса";
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -41,7 +44,15 @@ public class AdviceController {
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String constraintViolation(ConstraintViolationException e) {
-        return e.getMessage();
+        log.debug("Ошибка валидации ограничений: {}", e.getMessage());
+        return "Некорректные параметры запроса";
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String messageNotReadable(HttpMessageNotReadableException e) {
+        log.debug("Некорректное тело запроса: {}", e.getMessage());
+        return "Некорректное тело запроса";
     }
 
     @ExceptionHandler(EntityExistsException.class)
@@ -71,7 +82,7 @@ public class AdviceController {
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String otherException(RuntimeException e) {
-        log.error("Unhandled exception", e);
-        return "Internal server error";
+        log.error("Необработанное исключение", e);
+        return "Внутренняя ошибка сервера";
     }
 }

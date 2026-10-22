@@ -5,7 +5,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public record ChatManageMembersRequest(
-        @NotNull Long chatId,
-        @NotNull Long userId,
-        @NotBlank @Pattern(regexp = "ADD|REMOVE") String action) {
+        @NotNull(message = "Укажите идентификатор чата")
+        Long chatId,
+
+        @NotNull(message = "Укажите идентификатор пользователя")
+        Long userId,
+
+        @NotBlank(message = "Укажите действие")
+        @Pattern(regexp = "ADD|REMOVE", message = "Действие должно быть ADD или REMOVE")
+        String action) {
 }

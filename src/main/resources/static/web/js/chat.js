@@ -4,11 +4,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const usersById = new Map();
     let chat = null;
+    let me = null;
     let activeQuery = '';
 
     const chatTitle = document.getElementById('chatTitle');
     const chatSubtitle = document.getElementById('chatSubtitle');
-    const currentUser = document.getElementById('currentUser');
+    const currentUserAvatar = document.getElementById('currentUserAvatar');
+    const currentUserName = document.getElementById('currentUserName');
+    const currentUserEmail = document.getElementById('currentUserEmail');
     const membersCount = document.getElementById('membersCount');
     const membersList = document.getElementById('membersList');
     const memberForm = document.getElementById('memberForm');
@@ -21,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearSearchBtn = document.getElementById('clearSearchBtn');
 
     function currentUserId() {
-        return Number(currentUser.value) || null;
+        return me ? me.id : null;
     }
 
     function userName(id) {
@@ -33,29 +36,28 @@ document.addEventListener('DOMContentLoaded', () => {
         return `<span class="badge status-${escapeHtml(value)}">${escapeHtml(value)}</span>`;
     }
 
+    async function loadCurrentUser() {
+        me = await getCurrentUser();
+        currentUserName.textContent = me.username;
+        currentUserEmail.textContent = me.email;
+        currentUserAvatar.textContent = initials(me.username);
+    }
+
     async function loadUsers() {
         const page = await api('/api/users?page=0&size=100&sort=username,asc');
         const users = page.content || [];
         usersById.clear();
         users.forEach(user => usersById.set(String(user.id), user));
 
-        const saved = localStorage.getItem('redisapp.currentUser');
-        currentUser.innerHTML = '<option value="">Выберите пользователя</option>' +
-            users.map(user => `<option value="${user.id}">#${user.id} · ${escapeHtml(user.username)}</option>`).join('');
-        if (saved && usersById.has(saved)) {
-            currentUser.value = saved;
-        } else if (users.length > 0) {
-            currentUser.value = String(users[0].id);
-            localStorage.setItem('redisapp.currentUser', currentUser.value);
-        }
-
-        memberToAdd.innerHTML = users.map(user =>
-            `<option value="${user.id}">#${user.id} · ${escapeHtml(user.username)}</option>`).join('');
+        const available = users.filter(user => !me || user.id !== me.id);
+        memberToAdd.innerHTML = available.length > 0
+            ? available.map(user =>
+                `<option value="${user.id}">#${user.id} · ${escapeHtml(user.username)}</option>`).join('')
+            : '<option value="">Нет доступных пользователей</option>';
     }
 
     async function loadChat() {
         chat = await api('/api/chats/' + chatId);
-        rememberChat(chat);
 
         chatTitle.textContent = chat.name || ('Чат #' + chat.id);
         chatSubtitle.textContent = `#${chat.id} · ${chat.type} · создан ${formatDate(chat.createdAt)}`;
@@ -98,9 +100,9 @@ document.addEventListener('DOMContentLoaded', () => {
             messagesBox.innerHTML = `<p class="empty">${activeQuery ? 'Ничего не найдено' : 'Сообщений пока нет'}</p>`;
             return;
         }
-        const me = currentUserId();
+        const myId = currentUserId();
         messagesBox.innerHTML = messages.map(message => {
-            const own = me !== null && Number(message.senderId) === me;
+            const own = myId !== null && Number(message.senderId) === myId;
             const canRead = message.status !== 'read' && message.status !== 'deleted';
             const canDelete = message.status !== 'deleted';
             return `
@@ -163,13 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    currentUser.addEventListener('change', () => {
-        if (currentUser.value) {
-            localStorage.setItem('redisapp.currentUser', currentUser.value);
-        }
-        loadMessages();
-    });
-
     searchForm.addEventListener('submit', event => {
         event.preventDefault();
         activeQuery = searchQuery.value.trim();
@@ -188,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         const senderId = currentUserId();
         if (!senderId) {
-            toast('Выберите пользователя', 'error');
+            toast('Не удалось определить пользователя', 'error');
             return;
         }
         const content = messageContent.value.trim();
@@ -218,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (readButton) {
             const userId = currentUserId();
             if (!userId) {
-                toast('Выберите пользователя', 'error');
+                toast('Не удалось определить пользователя', 'error');
                 return;
             }
             try {
@@ -244,6 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     (async () => {
         try {
+            await loadCurrentUser();
             await loadUsers();
             await loadChat();
             await loadMessages();

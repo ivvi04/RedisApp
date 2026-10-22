@@ -1,17 +1,50 @@
 (function () {
     'use strict';
 
+    function getCookie(name) {
+        const prefix = name + '=';
+        const parts = document.cookie ? document.cookie.split(';') : [];
+        for (const part of parts) {
+            const value = part.trim();
+            if (value.startsWith(prefix)) {
+                return decodeURIComponent(value.substring(prefix.length));
+            }
+        }
+        return null;
+    }
+
+    function redirectToLogin() {
+        if (!location.pathname.startsWith('/login')) {
+            location.href = '/login';
+        }
+    }
+
     async function api(url, options = {}) {
-        const opts = {...options};
+        const opts = {credentials: 'same-origin', ...options};
         const headers = new Headers(opts.headers || {});
+        const method = (opts.method || 'GET').toUpperCase();
+
         if (opts.body && typeof opts.body !== 'string') {
             opts.body = JSON.stringify(opts.body);
             headers.set('Content-Type', 'application/json');
         }
         headers.set('Accept', 'application/json');
+
+        if (!['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method)) {
+            const csrfToken = getCookie('XSRF-TOKEN');
+            if (csrfToken) {
+                headers.set('X-XSRF-TOKEN', csrfToken);
+            }
+        }
         opts.headers = headers;
 
         const response = await fetch(url, opts);
+
+        if (response.status === 401 || response.redirected && response.url.includes('/login')) {
+            redirectToLogin();
+            throw new Error('Требуется вход в систему');
+        }
+
         const text = await response.text();
         let data = null;
         if (text) {
@@ -74,32 +107,26 @@
             .filter(n => Number.isInteger(n) && n > 0);
     }
 
+    let currentUserRequest = null;
+
+    function getCurrentUser(force = false) {
+        if (force) {
+            currentUserRequest = null;
+        }
+        if (!currentUserRequest) {
+            currentUserRequest = api('/api/auth/login').catch(error => {
+                currentUserRequest = null;
+                throw error;
+            });
+        }
+        return currentUserRequest;
+    }
+
     window.api = api;
     window.toast = toast;
     window.escapeHtml = escapeHtml;
     window.formatDate = formatDate;
     window.initials = initials;
     window.userIds = userIds;
-
-    window.rememberChat = function (chat) {
-        if (!chat || !chat.id) return;
-        const key = 'redisapp.recentChats';
-        let list = [];
-        try {
-            list = JSON.parse(localStorage.getItem(key) || '[]');
-        } catch (e) {
-            list = [];
-        }
-        list = list.filter(item => item.id !== chat.id);
-        list.unshift({id: chat.id, name: chat.name, type: chat.type});
-        localStorage.setItem(key, JSON.stringify(list.slice(0, 10)));
-    };
-
-    window.getRecentChats = function () {
-        try {
-            return JSON.parse(localStorage.getItem('redisapp.recentChats') || '[]');
-        } catch (e) {
-            return [];
-        }
-    };
+    window.getCurrentUser = getCurrentUser;
 })();

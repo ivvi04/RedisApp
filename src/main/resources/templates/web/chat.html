@@ -13,14 +13,18 @@
             <p class="muted" id="chatSubtitle">Загрузка…</p>
         </div>
         <div class="hero-actions">
-            <label class="compact">Я — пользователь
-                <select id="currentUser"></select>
-            </label>
+            <span class="chip" title="Вы вошли под этим аккаунтом">
+                <span class="avatar xs" id="currentUserAvatar">?</span>
+                <span class="chip-text">
+                    <span id="currentUserName">Загрузка…</span>
+                    <span class="chip-sub" id="currentUserEmail"></span>
+                </span>
+            </span>
             <button class="btn danger" id="deleteChatBtn" type="button">Удалить чат</button>
         </div>
     </section>
 
-    <section class="split">
+    <section class="split chat-layout">
         <aside class="card">
             <div class="card-head">
                 <h2>Участники</h2>
@@ -37,9 +41,12 @@
             </form>
         </aside>
 
-        <section class="card">
+        <section class="card messages-card">
             <div class="card-head">
-                <h2>Сообщения</h2>
+                <div>
+                    <h2>Сообщения</h2>
+                    <p class="muted small">Отправка выполняется от вашего аккаунта</p>
+                </div>
                 <form class="inline-form" id="searchForm">
                     <input type="search" id="searchQuery" placeholder="Поиск по чату">
                     <button class="btn ghost" type="submit">Найти</button>

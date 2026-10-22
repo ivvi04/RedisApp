@@ -11,9 +11,14 @@ import java.util.Optional;
 
 public interface ChatRepository extends JpaRepository<ChatEntity, Long> {
     
-    @Query("SELECT c FROM ChatEntity c WHERE :userId MEMBER OF c.members AND c.type = :type ORDER BY c.createdAt ASC")
-    Optional<ChatEntity> findOrCreatePrivateChat(Long userId, Long otherUserId, ChatType type);
-    
     @Query("SELECT c FROM ChatEntity c WHERE c.name LIKE %:query% OR c.id = :chatId")
     List<ChatEntity> searchChats(String query, Long chatId);
+
+    @Query("""
+            SELECT DISTINCT c FROM ChatEntity c
+            JOIN c.members m
+            WHERE m.id = :userId AND c.type <> :excludedType
+            ORDER BY c.createdAt DESC
+            """)
+    List<ChatEntity> findByMemberIdAndTypeNot(Long userId, String excludedType);
 }

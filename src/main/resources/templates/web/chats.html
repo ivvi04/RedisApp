@@ -10,6 +10,7 @@
         <div>
             <p class="eyebrow">Чаты</p>
             <h1>Создание и поиск чатов</h1>
+            <p class="muted">Новый чат создаётся от вашего имени — вы автоматически становитесь участником.</p>
         </div>
         <form class="inline-form" id="openChatForm">
             <input type="number" min="1" name="chatId" placeholder="ID чата" required>
@@ -19,7 +20,13 @@
 
     <section class="split">
         <form class="card form" id="chatForm">
-            <h2>Новый чат</h2>
+            <div class="card-head">
+                <h2>Новый чат</h2>
+                <span class="chip" id="creatorChip">
+                    <span class="avatar xs" id="creatorAvatar">?</span>
+                    <span id="creatorName">Загрузка…</span>
+                </span>
+            </div>
             <label>Название
                 <input type="text" id="chatName" maxlength="255" placeholder="Название чата">
             </label>
@@ -27,11 +34,6 @@
                 <select id="chatType">
                     <option value="private">private</option>
                     <option value="group" selected>group</option>
-                </select>
-            </label>
-            <label>Создатель
-                <select id="createdBy" required>
-                    <option value="">Загрузка…</option>
                 </select>
             </label>
             <fieldset class="members">
@@ -47,11 +49,14 @@
 
         <section class="card">
             <div class="card-head">
-                <h2>Недавние чаты</h2>
-                <button class="btn ghost small" id="clearRecentBtn" type="button">Очистить</button>
+                <div>
+                    <h2>Мои чаты</h2>
+                    <p class="muted small">Список загружается с сервера</p>
+                </div>
+                <button class="btn ghost small" id="refreshChatsBtn" type="button">Обновить</button>
             </div>
-            <div id="recentChats" class="chat-list">
-                <p class="muted small">Пока нет открытых чатов.</p>
+            <div id="myChats" class="chat-list">
+                <p class="muted small">Загрузка…</p>
             </div>
         </section>
     </section>

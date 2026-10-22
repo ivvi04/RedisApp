@@ -5,6 +5,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record UserUpdateRequest(
-        @NotBlank @Email String email,
-        @NotBlank @Size(max = 255) String username) {
+        @NotBlank(message = "Укажите email")
+        @Email(message = "Некорректный email")
+        String email,
+
+        @NotBlank(message = "Укажите имя пользователя")
+        @Size(max = 255, message = "Имя пользователя слишком длинное")
+        String username) {
 }
