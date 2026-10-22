@@ -5,6 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
+    <!-- Baseline migration with all table definitions -->
     <include file="db/changelog/baseline/baseline.sql"/>
 
 </databaseChangeLog>

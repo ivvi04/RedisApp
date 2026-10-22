@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{web/fragments/layout :: layout(~{::title}, ~{::main}, ~{::script})}">
+<head>
+    <title>Чаты — RedisApp</title>
+</head>
+<body>
+<main class="container">
+    <section class="page-head">
+        <div>
+            <p class="eyebrow">Чаты</p>
+            <h1>Создание и поиск чатов</h1>
+            <p class="muted">Новый чат создаётся от вашего имени — вы автоматически становитесь участником.</p>
+        </div>
+        <form class="inline-form" id="openChatForm" th:if="${isAdmin}">
+            <input type="number" min="1" name="chatId" placeholder="ID чата"
+                   aria-label="ID чата" required>
+            <button class="btn" type="submit">Открыть</button>
+        </form>
+    </section>
+
+    <section class="split">
+        <form class="card form" id="chatForm">
+            <div class="card-head">
+                <h2>Новый чат</h2>
+                <span class="chip" id="creatorChip">
+                    <span class="avatar xs" id="creatorAvatar">?</span>
+                    <span id="creatorName">Загрузка…</span>
+                </span>
+            </div>
+            <label>Название
+                <input type="text" id="chatName" maxlength="255" placeholder="Название чата">
+            </label>
+            <p class="muted small">
+                Тип чата определяется автоматически: private — до двух участников, при добавлении третьего и последующих — group.
+            </p>
+            <fieldset class="members">
+                <legend>Участники</legend>
+                <div id="membersList" class="members-list">
+                    <p class="muted small">Загрузка пользователей…</p>
+                </div>
+            </fieldset>
+            <div class="form-actions">
+                <button class="btn primary" type="submit">Создать чат</button>
+            </div>
+        </form>
+
+        <section class="card">
+            <div class="card-head">
+                <div>
+                    <h2 id="chatsTitle">Мои чаты</h2>
+                    <p class="muted small" id="chatsSubtitle">Список загружается с сервера</p>
+                </div>
+                <div class="toolbar">
+                    <form class="inline-form" id="searchChatsForm">
+                        <input type="search" id="chatSearchQuery" placeholder="Поиск чатов"
+                               aria-label="Поиск чатов" required>
+                        <button class="btn ghost small" type="submit">Найти</button>
+                        <button class="btn ghost small" id="resetSearchBtn" type="button" hidden>Сбросить</button>
+                    </form>
+                    <button class="btn ghost small" id="refreshChatsBtn" type="button">Обновить</button>
+                </div>
+            </div>
+            <div id="myChats" class="chat-list">
+                <p class="muted small">Загрузка…</p>
+            </div>
+        </section>
+    </section>
+</main>
+<script th:src="@{/web/js/chats.js}"></script>
+</body>
+</html>

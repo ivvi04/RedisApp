@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Регистрация — RedisApp</title>
+    <link rel="stylesheet" th:href="@{/web/css/style.css}">
+</head>
+<body class="auth-body">
+<main class="auth-shell">
+    <section class="auth-preview">
+        <a class="brand" th:href="@{/login}">
+            <span class="logo">R</span>
+            <span class="brand-text">
+                <span class="brand-name">RedisApp</span>
+                <span class="brand-caption">messenger</span>
+            </span>
+        </a>
+
+        <div class="auth-preview-copy">
+            <p class="eyebrow">Новый аккаунт</p>
+            <h1>Подключитесь к общему пространству</h1>
+            <p class="muted">Создайте аккаунт, чтобы создавать чаты и обмениваться сообщениями.</p>
+        </div>
+
+        <ul class="auth-points">
+            <li>Быстрая регистрация</li>
+            <li>Пароль хранится только в виде хеша</li>
+            <li>Доступ к чатам после входа</li>
+        </ul>
+    </section>
+
+    <section class="auth-panel">
+        <div class="auth-card">
+            <p class="eyebrow">Регистрация</p>
+            <h2>Создать аккаунт</h2>
+            <p class="muted">Заполните данные — затем войдите с указанным email.</p>
+
+            <form class="form auth-form" id="registerForm" novalidate>
+                <label>Email
+                    <input type="email" id="email" name="email" required autofocus
+                           autocomplete="email" placeholder="you@example.com">
+                </label>
+                <label>Имя пользователя
+                    <input type="text" id="username" name="username" required maxlength="255"
+                           autocomplete="nickname" placeholder="username">
+                </label>
+                <label>Пароль
+                    <input type="password" id="password" name="password" required minlength="6" maxlength="255"
+                           autocomplete="new-password" placeholder="Минимум 6 символов">
+                </label>
+                <label>Повторите пароль
+                    <input type="password" id="confirmPassword" name="confirmPassword" required
+                           autocomplete="new-password" placeholder="Ещё раз">
+                </label>
+
+                <div class="alert error" id="registerError" hidden></div>
+
+                <button class="btn primary block" id="registerSubmit" type="submit">Создать аккаунт</button>
+            </form>
+
+            <p class="auth-switch">
+                Уже есть аккаунт?
+                <a th:href="@{/login}">Войти</a>
+            </p>
+        </div>
+    </section>
+</main>
+<script th:src="@{/web/js/api.js}"></script>
+<script th:src="@{/web/js/register.js}"></script>
+</body>
+</html>
