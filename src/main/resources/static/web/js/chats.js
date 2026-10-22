@@ -1,24 +1,32 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('chatForm');
     const nameInput = document.getElementById('chatName');
-    const typeInput = document.getElementById('chatType');
     const membersList = document.getElementById('membersList');
     const creatorName = document.getElementById('creatorName');
     const creatorAvatar = document.getElementById('creatorAvatar');
     const submitBtn = form.querySelector('button[type="submit"]');
+    const searchForm = document.getElementById('searchChatsForm');
+    const searchInput = document.getElementById('chatSearchQuery');
+    const resetSearchBtn = document.getElementById('resetSearchBtn');
+    const chatsTitle = document.getElementById('chatsTitle');
+    const chatsSubtitle = document.getElementById('chatsSubtitle');
 
     let me = null;
 
-    document.getElementById('openChatForm').addEventListener('submit', event => {
-        event.preventDefault();
-        const chatId = Number(new FormData(event.target).get('chatId'));
-        if (chatId > 0) location.href = '/chats/' + chatId;
-    });
+    const openChatForm = document.getElementById('openChatForm');
 
-    function renderChats(chats) {
+    if (openChatForm) {
+        openChatForm.addEventListener('submit', event => {
+            event.preventDefault();
+            const chatId = Number(new FormData(event.target).get('chatId'));
+            if (chatId > 0) location.href = '/chats/' + chatId;
+        });
+    }
+
+    function renderChats(chats, emptyText) {
         const container = document.getElementById('myChats');
         if (!chats || chats.length === 0) {
-            container.innerHTML = '<p class="muted small">У вас пока нет чатов. Создайте первый чат слева.</p>';
+            container.innerHTML = `<p class="muted small">${emptyText}</p>`;
             return;
         }
         container.innerHTML = chats.map(chat => `
@@ -37,15 +45,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadChats() {
         const container = document.getElementById('myChats');
+        chatsTitle.textContent = 'Мои чаты';
+        chatsSubtitle.textContent = 'Список загружается с сервера';
+        searchInput.value = '';
+        resetSearchBtn.hidden = true;
         container.innerHTML = '<p class="muted small">Загрузка…</p>';
         try {
             const chats = await api('/api/chats');
-            renderChats(chats);
+            renderChats(chats, 'У вас пока нет чатов. Создайте первый чат слева.');
         } catch (error) {
             container.innerHTML = `<p class="muted small">${escapeHtml(error.message)}</p>`;
             toast(error.message, 'error');
         }
     }
+
+    async function searchChats(event) {
+        event.preventDefault();
+        const query = searchInput.value.trim();
+        if (!query) return;
+
+        const container = document.getElementById('myChats');
+        chatsTitle.textContent = 'Результаты поиска';
+        chatsSubtitle.textContent = 'Поиск по названию чата';
+        resetSearchBtn.hidden = false;
+        container.innerHTML = '<p class="muted small">Загрузка…</p>';
+        try {
+            const chats = await api('/api/chats/search?query=' + encodeURIComponent(query));
+            renderChats(chats, 'Ничего не найдено.');
+        } catch (error) {
+            container.innerHTML = `<p class="muted small">${escapeHtml(error.message)}</p>`;
+            toast(error.message, 'error');
+        }
+    }
+
+    searchForm.addEventListener('submit', searchChats);
+    resetSearchBtn.addEventListener('click', loadChats);
 
     document.getElementById('refreshChatsBtn').addEventListener('click', loadChats);
 
@@ -93,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 body: {
                     name: nameInput.value.trim() || null,
-                    type: typeInput.value,
                     memberIds,
                     createdById: me.id
                 }

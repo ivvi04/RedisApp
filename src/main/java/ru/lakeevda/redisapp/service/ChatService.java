@@ -71,7 +71,6 @@ public class ChatService {
         ChatEntity chat = new ChatEntity();
 
         chat.setName(request.name());
-        chat.setType(ChatType.fromValue(request.type()).getValue());
 
         Set<UserEntity> members = new HashSet<>();
 
@@ -84,6 +83,7 @@ public class ChatService {
         chat.setCreatedById(creator.getId());
 
         chat.setMembers(members);
+        chat.setType(resolveType(members).getValue());
 
         return ChatMapper.fromEntity(chatRepository.save(chat));
     }
@@ -103,6 +103,13 @@ public class ChatService {
             case "REMOVE" -> chat.getMembers().remove(user);
             default -> throw new IllegalArgumentRequestException();
         }
+
+        // Групповой чат не возвращается в приватный при удалении участников.
+        if (!ChatType.DELETED.getValue().equals(chat.getType())
+                && resolveType(chat.getMembers()) == ChatType.GROUP) {
+            chat.setType(ChatType.GROUP.getValue());
+        }
+
         chatRepository.save(chat);
     }
 
@@ -133,5 +140,9 @@ public class ChatService {
     public ChatEntity getEntityById(Long id) {
         return chatRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Чат не найден"));
+    }
+
+    private ChatType resolveType(Set<UserEntity> members) {
+        return members.size() > 2 ? ChatType.GROUP : ChatType.PRIVATE;
     }
 }

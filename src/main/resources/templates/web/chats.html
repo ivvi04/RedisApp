@@ -12,8 +12,9 @@
             <h1>Создание и поиск чатов</h1>
             <p class="muted">Новый чат создаётся от вашего имени — вы автоматически становитесь участником.</p>
         </div>
-        <form class="inline-form" id="openChatForm">
-            <input type="number" min="1" name="chatId" placeholder="ID чата" required>
+        <form class="inline-form" id="openChatForm" th:if="${isAdmin}">
+            <input type="number" min="1" name="chatId" placeholder="ID чата"
+                   aria-label="ID чата" required>
             <button class="btn" type="submit">Открыть</button>
         </form>
     </section>
@@ -30,12 +31,9 @@
             <label>Название
                 <input type="text" id="chatName" maxlength="255" placeholder="Название чата">
             </label>
-            <label>Тип
-                <select id="chatType">
-                    <option value="private">private</option>
-                    <option value="group" selected>group</option>
-                </select>
-            </label>
+            <p class="muted small">
+                Тип чата определяется автоматически: private — до двух участников, при добавлении третьего и последующих — group.
+            </p>
             <fieldset class="members">
                 <legend>Участники</legend>
                 <div id="membersList" class="members-list">
@@ -50,10 +48,18 @@
         <section class="card">
             <div class="card-head">
                 <div>
-                    <h2>Мои чаты</h2>
-                    <p class="muted small">Список загружается с сервера</p>
+                    <h2 id="chatsTitle">Мои чаты</h2>
+                    <p class="muted small" id="chatsSubtitle">Список загружается с сервера</p>
                 </div>
-                <button class="btn ghost small" id="refreshChatsBtn" type="button">Обновить</button>
+                <div class="toolbar">
+                    <form class="inline-form" id="searchChatsForm">
+                        <input type="search" id="chatSearchQuery" placeholder="Поиск чатов"
+                               aria-label="Поиск чатов" required>
+                        <button class="btn ghost small" type="submit">Найти</button>
+                        <button class="btn ghost small" id="resetSearchBtn" type="button" hidden>Сбросить</button>
+                    </form>
+                    <button class="btn ghost small" id="refreshChatsBtn" type="button">Обновить</button>
+                </div>
             </div>
             <div id="myChats" class="chat-list">
                 <p class="muted small">Загрузка…</p>

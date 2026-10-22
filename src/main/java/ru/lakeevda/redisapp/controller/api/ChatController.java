@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.lakeevda.redisapp.dto.chat.ChatCreateRequest;
 import ru.lakeevda.redisapp.dto.chat.ChatManageMembersRequest;
@@ -42,6 +43,12 @@ public class ChatController {
     @GetMapping("/{chatId}")
     public ChatResponse getById(@PathVariable Long chatId) {
         return chatService.getById(chatId);
+    }
+
+    @GetMapping("/search")
+    public List<ChatResponse> searchChats(@RequestParam String query,
+                                          @RequestParam(required = false) Long chatId) {
+        return chatService.searchChats(query, chatId);
     }
 
     @PutMapping("/members")
