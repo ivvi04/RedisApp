@@ -21,12 +21,14 @@ public interface MessageUseCase {
     Message send(SendMessageCommand command);
 
     /**
-     * Возвращает сообщения чата.
+     * Возвращает сообщения чата и отмечает прочитанными сообщения,
+     * отправленные другими пользователями.
      *
-     * @param chatId идентификатор чата
+     * @param chatId   идентификатор чата
+     * @param readerId идентификатор читателя
      * @return список сообщений
      */
-    List<Message> getByChatId(Long chatId);
+    List<Message> getByChatId(Long chatId, Long readerId);
 
     /**
      * Отмечает сообщение как прочитанное.

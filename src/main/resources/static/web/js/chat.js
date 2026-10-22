@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const myId = currentUserId();
         messagesBox.innerHTML = messages.map(message => {
             const own = myId !== null && Number(message.senderId) === myId;
-            const canRead = message.status !== 'read' && message.status !== 'deleted';
+            const canRead = !own && message.status !== 'read' && message.status !== 'deleted';
             const canDelete = message.status !== 'deleted';
             return `
                 <article class="message ${own ? 'own' : ''}">

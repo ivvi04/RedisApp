@@ -38,6 +38,16 @@ public interface MessageRepository {
     List<Message> searchInChat(Long chatId, String query);
 
     /**
+     * Помечает непрочитанные сообщения чата как прочитанные,
+     * если их отправителем не является указанный пользователь.
+     *
+     * @param chatId   идентификатор чата
+     * @param readerId идентификатор читателя
+     * @return количество обновлённых сообщений
+     */
+    int markReadByChatIdAndSenderNot(Long chatId, Long readerId);
+
+    /**
      * Сохраняет сообщение.
      *
      * @param message сообщение

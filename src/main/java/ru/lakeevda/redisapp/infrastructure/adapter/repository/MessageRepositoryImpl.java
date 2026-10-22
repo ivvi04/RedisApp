@@ -66,6 +66,19 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     /**
+     * Помечает непрочитанные сообщения чата как прочитанные,
+     * если их отправителем не является указанный пользователь.
+     *
+     * @param chatId   идентификатор чата
+     * @param readerId идентификатор читателя
+     * @return количество обновлённых сообщений
+     */
+    @Override
+    public int markReadByChatIdAndSenderNot(Long chatId, Long readerId) {
+        return repository.markReadByChatIdAndSenderNot(chatId, readerId);
+    }
+
+    /**
      * Сохраняет сообщение.
      *
      * @param message сообщение

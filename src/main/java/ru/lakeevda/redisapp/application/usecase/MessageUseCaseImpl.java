@@ -2,6 +2,7 @@ package ru.lakeevda.redisapp.application.usecase;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
@@ -69,15 +70,27 @@ public class MessageUseCaseImpl implements MessageUseCase {
     }
 
     /**
-     * Возвращает сообщения чата.
+     * Возвращает сообщения чата и отмечает прочитанными сообщения,
+     * отправленные другими пользователями.
      *
-     * @param chatId идентификатор чата
+     * @param chatId   идентификатор чата
+     * @param readerId идентификатор читателя
      * @return список сообщений
      */
     @Override
-    @Transactional(readOnly = true)
-    @Cacheable(cacheNames = CACHE_MESSAGES, key = "#chatId", condition = "#chatId != null")
-    public List<Message> getByChatId(Long chatId) {
+    @Transactional
+    @Caching(
+            put = @CachePut(cacheNames = CACHE_MESSAGES, key = "#chatId", condition = "#chatId != null"),
+            evict = @CacheEvict(cacheNames = CACHE_SEARCH, allEntries = true)
+    )
+    public List<Message> getByChatId(Long chatId, Long readerId) {
+        if (readerId != null) {
+            chatRepository.findById(chatId)
+                    .filter(chat -> !chat.isDeleted())
+                    .filter(chat -> chat.hasMember(readerId))
+                    .ifPresent(chat -> messageRepository.markReadByChatIdAndSenderNot(chatId, readerId));
+        }
+
         return messageRepository.findByChatId(chatId);
     }
 
@@ -104,6 +117,10 @@ public class MessageUseCaseImpl implements MessageUseCase {
 
         if (!chat.hasMember(userId)) {
             throw new MemberNotFoundException("Вы не являетесь участником этого чата");
+        }
+
+        if (message.senderId().equals(userId)) {
+            return;
         }
 
         messageRepository.save(message.markRead());

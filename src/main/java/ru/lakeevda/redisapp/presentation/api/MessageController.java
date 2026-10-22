@@ -3,6 +3,7 @@ package ru.lakeevda.redisapp.presentation.api;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,14 +48,17 @@ public class MessageController {
     }
 
     /**
-     * Возвращает сообщения чата.
+     * Возвращает сообщения чата и автоматически отмечает прочитанными
+     * сообщения, отправленные другими пользователями.
      *
-     * @param chatId идентификатор чата
+     * @param chatId         идентификатор чата
+     * @param authentication данные аутентификации
      * @return список сообщений
      */
     @GetMapping("/chat/{chatId}")
-    public List<MessageResponse> getByChatId(@PathVariable Long chatId) {
-        return messageUseCase.getByChatId(chatId).stream()
+    public List<MessageResponse> getByChatId(@PathVariable Long chatId, Authentication authentication) {
+        Long readerId = Long.valueOf(authentication.getName());
+        return messageUseCase.getByChatId(chatId, readerId).stream()
                 .map(MessageResponseMapper::fromDomain)
                 .toList();
     }
