@@ -41,9 +41,11 @@ public interface MessageUseCase {
     /**
      * Помечает сообщение как удалённое.
      *
-     * @param id идентификатор сообщения
+     * @param id      идентификатор сообщения
+     * @param userId  идентификатор пользователя, удаляющего сообщение
+     * @param isAdmin признак администратора
      */
-    void delete(Long id);
+    void delete(Long id, Long userId, boolean isAdmin);
 
     /**
      * Ищет сообщения внутри чата.

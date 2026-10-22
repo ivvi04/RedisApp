@@ -5,7 +5,7 @@
     <title>Чат — RedisApp</title>
 </head>
 <body>
-<main class="container" th:attr="data-chat-id=${chatId}">
+<main class="container" th:attr="data-chat-id=${chatId}, data-is-admin=${isAdmin}">
     <section class="page-head">
         <div>
             <p class="eyebrow"><a class="link" th:href="@{/chats}">← Все чаты</a></p>

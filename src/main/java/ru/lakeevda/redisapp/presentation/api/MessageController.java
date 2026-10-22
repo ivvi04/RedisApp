@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.lakeevda.redisapp.application.command.SendMessageCommand;
 import ru.lakeevda.redisapp.application.port.in.MessageUseCase;
+import ru.lakeevda.redisapp.infrastructure.security.SecurityUtils;
 import ru.lakeevda.redisapp.presentation.api.dto.message.MessageResponse;
 import ru.lakeevda.redisapp.presentation.api.dto.message.MessageSendRequest;
 import ru.lakeevda.redisapp.presentation.api.mapper.MessageResponseMapper;
@@ -91,14 +92,18 @@ public class MessageController {
     }
 
     /**
-     * Удаляет сообщение.
+     * Удаляет сообщение. Удалить сообщение может его автор или администратор.
      *
-     * @param messageId идентификатор сообщения
+     * @param messageId      идентификатор сообщения
+     * @param authentication данные аутентификации
      * @return пустой успешный ответ
      */
     @DeleteMapping("/{messageId}")
-    public ResponseEntity<Void> delete(@PathVariable Long messageId) {
-        messageUseCase.delete(messageId);
+    public ResponseEntity<Void> delete(@PathVariable Long messageId, Authentication authentication) {
+        messageUseCase.delete(
+                messageId,
+                Long.valueOf(authentication.getName()),
+                SecurityUtils.isAdmin(authentication));
         return ResponseEntity.ok().build();
     }
 }

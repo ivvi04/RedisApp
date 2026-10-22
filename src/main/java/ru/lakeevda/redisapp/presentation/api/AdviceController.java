@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import ru.lakeevda.redisapp.domain.exception.ChatDeletedException;
 import ru.lakeevda.redisapp.domain.exception.MemberNotFoundException;
+import ru.lakeevda.redisapp.domain.exception.MessageAccessDeniedException;
 import ru.lakeevda.redisapp.domain.exception.ResourceAlreadyExistsException;
 import ru.lakeevda.redisapp.domain.exception.ResourceNotFoundException;
 
@@ -135,6 +136,18 @@ public class AdviceController {
     @ExceptionHandler(MemberNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String memberNotFound(MemberNotFoundException e) {
+        return e.getMessage();
+    }
+
+    /**
+     * Обрабатывает попытку выполнить действие с чужим сообщением.
+     *
+     * @param e исключение
+     * @return текст ошибки
+     */
+    @ExceptionHandler(MessageAccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public String messageAccessDenied(MessageAccessDeniedException e) {
         return e.getMessage();
     }
 

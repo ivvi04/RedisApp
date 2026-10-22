@@ -15,6 +15,7 @@ import ru.lakeevda.redisapp.application.port.out.MessageRepository;
 import ru.lakeevda.redisapp.application.port.out.UserRepository;
 import ru.lakeevda.redisapp.domain.exception.ChatDeletedException;
 import ru.lakeevda.redisapp.domain.exception.MemberNotFoundException;
+import ru.lakeevda.redisapp.domain.exception.MessageAccessDeniedException;
 import ru.lakeevda.redisapp.domain.exception.ResourceNotFoundException;
 import ru.lakeevda.redisapp.domain.model.Chat;
 import ru.lakeevda.redisapp.domain.model.Message;
@@ -129,7 +130,10 @@ public class MessageUseCaseImpl implements MessageUseCase {
     /**
      * Помечает сообщение как удалённое.
      *
-     * @param id идентификатор сообщения
+     * @param id      идентификатор сообщения
+     * @param userId  идентификатор пользователя, удаляющего сообщение
+     * @param isAdmin признак администратора
+     * @throws MessageAccessDeniedException если пользователь не является автором или администратором
      */
     @Override
     @Transactional
@@ -137,8 +141,13 @@ public class MessageUseCaseImpl implements MessageUseCase {
             @CacheEvict(cacheNames = CACHE_MESSAGES, allEntries = true),
             @CacheEvict(cacheNames = CACHE_SEARCH, allEntries = true)
     })
-    public void delete(Long id) {
-        messageRepository.save(getMessageOrThrow(id).markDeleted());
+    public void delete(Long id, Long userId, boolean isAdmin) {
+        Message message = getMessageOrThrow(id);
+        if (!isAdmin && !message.senderId().equals(userId)) {
+            throw new MessageAccessDeniedException("Удалять сообщения может только автор или администратор");
+        }
+
+        messageRepository.save(message.markDeleted());
     }
 
     /**

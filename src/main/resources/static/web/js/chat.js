@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const main = document.querySelector('main[data-chat-id]');
     const chatId = Number(main.dataset.chatId);
+    const isAdmin = main.dataset.isAdmin === 'true';
 
     const usersById = new Map();
     let chat = null;
@@ -104,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messagesBox.innerHTML = messages.map(message => {
             const own = myId !== null && Number(message.senderId) === myId;
             const canRead = !own && message.status !== 'read' && message.status !== 'deleted';
-            const canDelete = message.status !== 'deleted';
+            const canDelete = (own || isAdmin) && message.status !== 'deleted';
             return `
                 <article class="message ${own ? 'own' : ''}">
                     <div class="message-head">
