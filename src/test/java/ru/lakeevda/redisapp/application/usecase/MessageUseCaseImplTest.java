@@ -30,10 +30,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Тесты бизнес-логики работы с сообщениями.
@@ -164,8 +161,7 @@ class MessageUseCaseImplTest {
      */
     @Test
     void getByChatIdMarksOtherMessagesAsRead() {
-        when(chatRepository.findById(10L)).thenReturn(Optional.of(
-                new Chat(10L, "Chat", ChatType.PRIVATE, CREATED_AT, 1L, Set.of(1L, 2L))));
+        when(chatRepository.isActiveMember(10L, 2L)).thenReturn(true);
         List<Message> messages = List.of(message(1L, 1L, MessageStatus.SENT));
         when(messageRepository.findByChatId(10L)).thenReturn(messages);
 
@@ -196,8 +192,7 @@ class MessageUseCaseImplTest {
      */
     @Test
     void getByChatIdDoesNotMarkMessagesInDeletedChat() {
-        when(chatRepository.findById(10L)).thenReturn(Optional.of(
-                new Chat(10L, "Chat", ChatType.DELETED, CREATED_AT, 1L, Set.of(1L, 2L))));
+        when(chatRepository.isActiveMember(10L, 2L)).thenReturn(false);
         when(messageRepository.findByChatId(10L)).thenReturn(List.of());
 
         messageUseCase.getByChatId(10L, 2L);
@@ -210,8 +205,7 @@ class MessageUseCaseImplTest {
      */
     @Test
     void getByChatIdDoesNotMarkMessagesForNonMember() {
-        when(chatRepository.findById(10L)).thenReturn(Optional.of(
-                new Chat(10L, "Chat", ChatType.PRIVATE, CREATED_AT, 1L, Set.of(1L, 2L))));
+        when(chatRepository.isActiveMember(10L, 3L)).thenReturn(false);
         when(messageRepository.findByChatId(10L)).thenReturn(List.of());
 
         messageUseCase.getByChatId(10L, 3L);

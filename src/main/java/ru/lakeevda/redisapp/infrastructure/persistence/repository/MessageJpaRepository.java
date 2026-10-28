@@ -31,7 +31,7 @@ public interface MessageJpaRepository extends JpaRepository<MessageEntity, Long>
      * @param query  строка поиска
      * @return найденные сообщения
      */
-    @Query("SELECT m FROM MessageEntity m WHERE m.chatId = :chatId AND m.content LIKE %:query% AND m.status != 'deleted' ORDER BY m.timestamp ASC")
+    @Query("SELECT m FROM MessageEntity m WHERE m.chatId = :chatId AND LOWER(m.content) LIKE LOWER(CONCAT('%', :query, '%')) AND m.status != 'deleted' ORDER BY m.timestamp ASC")
     List<MessageEntity> searchMessagesInChat(Long chatId, String query);
 
     /**
@@ -42,7 +42,7 @@ public interface MessageJpaRepository extends JpaRepository<MessageEntity, Long>
      * @param readerId идентификатор читателя
      * @return количество обновлённых сообщений
      */
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE MessageEntity m SET m.status = 'read' "
             + "WHERE m.chatId = :chatId "
             + "AND m.senderId <> :readerId "

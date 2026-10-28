@@ -22,6 +22,15 @@ public interface ChatRepository {
     Optional<Chat> findById(Long id);
 
     /**
+     * Проверяет, что пользователь состоит в неудалённом чате.
+     *
+     * @param chatId идентификатор чата
+     * @param userId идентификатор пользователя
+     * @return {@code true}, если пользователь является участником активного чата
+     */
+    boolean isActiveMember(Long chatId, Long userId);
+
+    /**
      * Возвращает чаты участника, исключая указанный тип.
      *
      * @param userId       идентификатор пользователя

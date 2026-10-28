@@ -50,7 +50,17 @@ public class ChatPersistenceMapper {
         entity.setType(chat.type().getValue());
         entity.setCreatedAt(chat.createdAt());
         entity.setCreatedById(chat.createdById());
-        entity.getMembers().clear();
-        entity.getMembers().addAll(members);
+
+        Set<Long> targetIds = members.stream()
+                .map(UserEntity::getId)
+                .collect(Collectors.toSet());
+        entity.getMembers().removeIf(member -> !targetIds.contains(member.getId()));
+
+        Set<Long> currentIds = entity.getMembers().stream()
+                .map(UserEntity::getId)
+                .collect(Collectors.toSet());
+        members.stream()
+                .filter(member -> !currentIds.contains(member.getId()))
+                .forEach(entity.getMembers()::add);
     }
 }
