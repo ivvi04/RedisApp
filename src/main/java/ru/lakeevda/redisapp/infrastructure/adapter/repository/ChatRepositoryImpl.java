@@ -11,11 +11,7 @@ import ru.lakeevda.redisapp.infrastructure.persistence.mapper.ChatPersistenceMap
 import ru.lakeevda.redisapp.infrastructure.persistence.repository.ChatJpaRepository;
 import ru.lakeevda.redisapp.infrastructure.persistence.repository.UserJpaRepository;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +36,18 @@ public class ChatRepositoryImpl implements ChatRepository {
     @Override
     public Optional<Chat> findById(Long id) {
         return chatRepository.findById(id).map(mapper::toDomain);
+    }
+
+    /**
+     * Проверяет, что пользователь состоит в неудалённом чате.
+     *
+     * @param chatId идентификатор чата
+     * @param userId идентификатор пользователя
+     * @return {@code true}, если пользователь является участником активного чата
+     */
+    @Override
+    public boolean isActiveMember(Long chatId, Long userId) {
+        return chatRepository.existsActiveMember(chatId, userId);
     }
 
     /**

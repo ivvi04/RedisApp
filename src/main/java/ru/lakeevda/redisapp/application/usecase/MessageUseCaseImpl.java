@@ -85,11 +85,8 @@ public class MessageUseCaseImpl implements MessageUseCase {
             evict = @CacheEvict(cacheNames = CACHE_SEARCH, allEntries = true)
     )
     public List<Message> getByChatId(Long chatId, Long readerId) {
-        if (readerId != null) {
-            chatRepository.findById(chatId)
-                    .filter(chat -> !chat.isDeleted())
-                    .filter(chat -> chat.hasMember(readerId))
-                    .ifPresent(chat -> messageRepository.markReadByChatIdAndSenderNot(chatId, readerId));
+        if (readerId != null && chatRepository.isActiveMember(chatId, readerId)) {
+            messageRepository.markReadByChatIdAndSenderNot(chatId, readerId);
         }
 
         return messageRepository.findByChatId(chatId);
